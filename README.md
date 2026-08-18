@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/platform-Android%208.0%2B-3ddc84?logo=android&logoColor=white" alt="Android 8.0+"/>
   <img src="https://img.shields.io/badge/UI-Kotlin%20%2B%20Compose-7f52ff?logo=kotlin&logoColor=white" alt="Kotlin + Compose"/>
   <img src="https://img.shields.io/badge/audio-C%2B%2B%20%2B%20Oboe-00599c?logo=cplusplus&logoColor=white" alt="C++ + Oboe"/>
-  <img src="https://img.shields.io/badge/status-in%20design-c99a3a" alt="Status: in design"/>
+  <img src="https://img.shields.io/badge/status-alpha-c99a3a" alt="Status: alpha"/>
   <img src="https://img.shields.io/badge/license-GPL--3.0-bd0000" alt="License: GPL-3.0"/>
 </p>
 
@@ -63,10 +63,13 @@ Design docs live in [`/docs`](docs/):
 
 ## Building
 
-> The app itself is not scaffolded yet — see the [roadmap](docs/07-roadmap.md). Once Phase 0 lands:
+Requirements: JDK 17+ and the Android SDK with NDK + CMake (a `local.properties`
+pointing at your SDK). Then:
 
 ```bash
+./gradlew assembleDebug         # build the APK
 ./gradlew installDebug          # build and install on a connected phone
+./gradlew test                  # run the unit tests (MIDI parser etc.)
 adb logcat -s MagnusOrgue       # tail the app logs
 ```
 
