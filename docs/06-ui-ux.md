@@ -10,18 +10,20 @@
 ## Main screen
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│ ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ │  ← monitor keyboard
-│ ███████████████████ 5 octaves, C2–C7 ██████████████████████── │     (slim, touchable)
-├────────────────────────────────────────────────────────────────┤
-│ ╭──────────────────── M a g n u s O r g u e ─────────────────╮ │
-│ │                                                            │ │
-│ │   (PRINCIPAL)   (FLUTE)   (STRINGS)   (TUTTI)   (GENERAL)  │ │  ← drawknobs
-│ │      8'           8'         8'                  CANCEL    │ │
-│ │                                                            │ │
-│ │   ──────●─────────────── volume        ● KORG microKEY    │ │
-│ ╰────────────────────────────────────────────────────────────╯ │
-└────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│ ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ │  ← monitor keyboard
+│ █████████████████████ 5 octaves, C2–C7 ████████████████████████████── │     (slim, touchable)
+├───────────────────────────────────────────────────────────────────────┤
+│ ╭─────────────────────── M a g n u s O r g u e ─────────────────────╮ │
+│ │                             MANUALE                                │ │
+│ │ (PRINCIPALE)(VOCE UMANA)(FLAUTO)(GAMBA)(OTTAVA)(FL.CONICO)(XV)(REGALE) │
+│ │     8'          8'        8'      8'     4'       4'      2'   8'  │ │
+│ │        PEDALE                          ACCESSORI                   │ │
+│ │ (SUBBASSO)(FLAUTO)(C.FAGOTTO)   (TREMOLO)(OTTAVA BASSA)(GEN.CANCEL) │ │
+│ │    16'       8'      16'                                           │ │
+│ │  ──────●─────────── volume                    ● KORG microKEY     │ │
+│ ╰────────────────────────────────────────────────────────────────────╯ │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ### The monitor keyboard (top strip)
@@ -33,11 +35,14 @@
 
 ### The drawknob console
 
-- Each stop is a **drawknob**: a round bone-colored knob with the stop name engraved in serif capitals.
+- Knobs are grouped by **division** — Manuale (8 stops), Pedale (3 stops), Accessori — with small engraved group labels.
+- Each stop is a **drawknob**: a round bone-colored knob with the stop name engraved in serif capitals. **Reed stops (Regale, Contro Fagotto) are engraved in red**, as tradition demands.
 - **Pulled** state = bright face, brass ring, drop shadow ("out of the panel"). Pushed = darker, recessed.
 - Stops **combine** — pulling Principal 8' + Flute 8' stacks both recipes, exactly like ranks on a real organ.
 - **No stops pulled = silence.** That's authentic, not a bug.
-- **General Cancel** is a knob-shaped piston (red engraving): retires all stops and silences held notes. It replaced the old PANIC button and never shows a "pulled" state.
+- Pedal stops only speak in their real compass (up to F4) — pulling Subbasso 16' gives the left hand a pedal foundation without touching the treble.
+- **Accessori:** Tremolo (wind wobble) and Ottava Bassa (each key also plays its lower octave — coupled keys light up on the monitor keyboard, like watching coupler action move the keys).
+- **General Cancel** is a knob-shaped piston (red engraving): retires all stops and accessories and silences held notes. It never shows a "pulled" state.
 - Nameplate ("MagnusOrgue") across the top of the panel, like a builder's plaque.
 
 ### Bottom row of the console

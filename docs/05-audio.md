@@ -13,10 +13,16 @@ imported from the Giubiasco GrandOrgue set with `tools/import_ranks.py`:
 
 - One `.mrk` pack per stop: mono 16-bit attack samples, one pipe per minor
   third (the engine pitch-shifts at most ±1 semitone to the nearest pipe),
-  truncated right after the sustain loop. ~47 MB for four ranks.
+  truncated right after the sustain loop. ~104 MB for eleven ranks.
 - Each voice loops its pipe recording forever; loop points come from the
-  `smpl` chunk of the original WAVs. Root pitch (with tuning fraction) too,
-  so the organ keeps its real tuning.
+  `smpl` chunk of the original WAVs.
+- Pipes are keyed by **keyboard position** (the filename number), not by
+  their true pitch, and shifted chromatically. That preserves the organ's
+  real temperament, the Voce Umana's celeste detune and the 16'/4'/2'
+  footages — correcting to true pitch (the v1 mistake) quietly erased all
+  three. A rank outside its compass simply doesn't speak (`nearestPipe`
+  returns null beyond ~2 semitones), which is what gates the pedal ranks
+  and the bass-less celeste for free.
 - A stop is a rank; pulled stops = one sample layer each per voice.
 - The packs stay out of git (the samples belong to the set's author);
   anyone building the app runs the importer against their own copy.
@@ -58,8 +64,8 @@ onAudioReady(float* output, int numFrames):        // real-time thread
 
 One playing note: up to one sample layer per pulled stop, all summed.
 
-- **Per layer:** nearest pipe by root note, fractional read position, linear interpolation, wrap inside the sustain loop.
-- **Pitch shift:** `inc = 2^((note - rootNote) / 12) * (packRate / deviceRate)` — at most ±1 semitone of shift thanks to the minor-third pipe spacing.
+- **Per layer:** nearest pipe by keyboard key, fractional read position, linear interpolation, wrap inside the sustain loop.
+- **Pitch shift:** `inc = 2^((note - keyNote) / 12) * (packRate / deviceRate)` — at most ±1 semitone of shift thanks to the minor-third pipe spacing.
 - **Envelope:** a de-clicker only. Attack ~4 ms (the recording carries the real pipe speech); release ~140 ms fakes the pipe closing until release samples land.
 
 ### VoiceManager (polyphony)
@@ -80,7 +86,12 @@ struct StopDefinition {
 };
 ```
 
-Current registration: Principale 8', Flauto 8' (a camino), Gamba 8', Ottava 4'. Stops combine as bitmask layers; adding a stop = one importer entry + one table entry + one knob.
+Current registration — Manuale: Principale 8', Voce Umana 8' (celeste), Flauto 8' (a camino), Gamba 8', Ottava 4', Flauto Conico 4', Quintadecima 2', Regale 8' (reed). Pedale: Subbasso 16', Flauto 8', Contro Fagotto 16' (reed). Stops combine as bitmask layers; adding a stop = one importer entry + one table entry + one knob.
+
+### Accessories (not stops)
+
+- **Tremulant:** a ~5.5 Hz, shallow amplitude LFO on the whole organ, applied before the reverb (the wind wobbles, the room doesn't), with an eased depth so toggling mid-chord doesn't step.
+- **Ottava Bassa (sub-octave coupler):** lives in the Kotlin controller, not the engine — each key press also triggers its lower octave. Engine notes are reference-counted there so coupled/doubled presses release cleanly.
 
 ## Rules of the real-time thread
 

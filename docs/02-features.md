@@ -40,13 +40,15 @@
 |---|---|---|---|
 | 3.1 | Polyphonic organ sound | P0 | Minimum 16 voices; target 32 |
 | 3.2 | Low latency | P0 | AAudio/Oboe in `LowLatency`/`Exclusive` mode |
-| 3.3 | 2–4 stops/timbres | P0 | E.g., Principal 8', Flute 8', Strings 8', Tutti |
+| 3.3 | Eleven sampled stops | P0 | 8 manual + 3 pedal ranks from the Giubiasco set |
 | 3.4 | Simple envelope (short attack/release) | P0 | Avoids clicks on note on/off |
 | 3.5 | General Cancel piston | P0 | Retires all stops and silences everything, organ style |
 | 3.6 | Master volume control | P0 | Slider in the app + phone hardware buttons |
 | 3.7 | Simple fixed reverb | P0 | Freeverb-style room, always on — half the organ sound |
 | 3.8 | Stop combination | P0 | Drawknobs toggle and stack like real ranks; no stops pulled = silence |
-| 3.9 | Tremulant, historical tunings, transposition | P2 | Future |
+| 3.9 | Tremulant | P0 | Gentle pre-reverb amplitude LFO, whole organ |
+| 3.10 | Ottava Bassa coupler | P0 | Each key also plays its lower octave (ref-counted, no stuck notes) |
+| 3.11 | Historical tunings, transposition | P2 | Future |
 
 ## 4. Interface and settings
 

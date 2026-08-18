@@ -29,7 +29,8 @@ The whole point is **low latency** and **zero friction**. Everything else is sec
 
 - 🎹 **On-screen keyboard** — multitouch, ~2 octaves in landscape, octave shift buttons
 - 🔌 **USB MIDI via OTG** — automatic plug-and-play detection, hotplug safe, no permission dialogs
-- 🎛️ **Four real stops** — Principale 8', Flauto 8', Gamba 8' and Ottava 4', sampled from the Giubiasco organ; they combine like real ranks
+- 🎛️ **Eleven real stops** — 8 manual + 3 pedal ranks sampled from the Giubiasco organ, combinable like real ranks, grouped by division on a drawknob console
+- 🎚️ **Tremulant and Ottava Bassa coupler** — wind wobble and sub-octave coupling, plus a General Cancel piston
 - ⚡ **Low-latency audio** — native C++ engine on top of [Oboe](https://github.com/google/oboe), targeting < 20 ms
 - 🎼 **32-voice polyphony** — big chords with both hands, no crackles
 - 🔇 **Panic button** — because stuck notes happen to everyone
