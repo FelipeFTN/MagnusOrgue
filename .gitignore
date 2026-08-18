@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# CMake/NDK intermediates
+.cxx/
+
 # Android Studio / IntelliJ
 .idea/
 *.iml
