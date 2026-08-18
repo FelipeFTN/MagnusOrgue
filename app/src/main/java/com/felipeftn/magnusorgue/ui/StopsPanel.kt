@@ -8,6 +8,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,27 +41,44 @@ import com.felipeftn.magnusorgue.controller.OrganController
 import com.felipeftn.magnusorgue.ui.theme.Gold
 
 /**
- * The console: a walnut panel with drawknobs. This is the heart of the app —
- * the player's hands live on the MIDI keyboard, so the screen's whole job
- * is registration.
- *
- * Stop names, in the exact order of kStops in cpp/Stops.h. If you add a stop
- * there, add it here too, in the same slot.
- * TODO: one source of truth for this list instead of a comment and a prayer.
+ * The console: a walnut panel with drawknobs grouped by division. This is
+ * the heart of the app — the player's hands live on the MIDI keyboard, so
+ * the screen's whole job is registration.
  */
-private val STOPS = listOf(
-    "Principale" to "8'",
-    "Flauto" to "8'",
-    "Gamba" to "8'",
-    "Ottava" to "4'",
+
+private data class StopSpec(val title: String, val subtitle: String, val reed: Boolean = false)
+
+/**
+ * Stop knobs in the exact order of kStops in cpp/Stops.h (manual first,
+ * then pedal — the stop index is the bit the engine sees). If you add a
+ * rank there, add its knob here, same slot.
+ * TODO: one source of truth instead of a comment and a prayer.
+ */
+private val MANUAL_STOPS = listOf(
+    StopSpec("Principale", "8'"),
+    StopSpec("Voce Umana", "8'"),
+    StopSpec("Flauto", "8'"),
+    StopSpec("Gamba", "8'"),
+    StopSpec("Ottava", "4'"),
+    StopSpec("Fl. Conico", "4'"),
+    StopSpec("XV", "2'"),  // Quintadecima — "XV" is how consoles engrave it
+    StopSpec("Regale", "8'", reed = true),
+)
+private val PEDAL_STOPS = listOf(
+    StopSpec("Subbasso", "16'"),
+    StopSpec("Flauto", "8'"),
+    StopSpec("C. Fagotto", "16'", reed = true),
 )
 
-// Console palette. Dark walnut, brass, bone.
+// Console palette. Dark walnut, brass, bone. Reeds get their traditional
+// red engraving.
 private val Walnut = Color(0xFF241A12)
 private val WalnutEdge = Color(0xFF3D2E1E)
 private val Engraving = Color(0xFF3A3020)
+private val ReedEngraving = Color(0xFF8A1B1B)
 private val CancelEngraving = Color(0xFF7A1F1F)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
     Surface(
@@ -69,7 +88,7 @@ fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
         border = BorderStroke(1.dp, WalnutEdge),
     ) {
         Column(
-            Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp),
+            Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             // Nameplate, like the builder's plaque above a real console.
@@ -79,34 +98,59 @@ fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center,
                 color = Gold,
                 fontFamily = FontFamily.Serif,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 letterSpacing = 4.sp,
             )
 
-            Row(
+            DivisionLabel("Manuale")
+            FlowRow(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                STOPS.forEachIndexed { index, (name, pitch) ->
-                    DrawKnob(
-                        title = name,
-                        subtitle = pitch,
-                        pulled = index in controller.activeStops,
-                        onClick = { controller.toggleStop(index) },
-                    )
+                MANUAL_STOPS.forEachIndexed { index, spec ->
+                    StopKnob(spec, pulled = index in controller.activeStops) {
+                        controller.toggleStop(index)
+                    }
                 }
+            }
 
-                // General Cancel: the piston that retires every stop and
-                // shuts the organ up. Never shows as "pulled" — it's a
-                // momentary control, not a stop.
-                DrawKnob(
-                    title = "General",
-                    subtitle = "Cancel",
-                    pulled = false,
-                    engraving = CancelEngraving,
-                    onClick = controller::generalCancel,
-                )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                Column(Modifier.weight(3f)) {
+                    DivisionLabel("Pedale")
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        PEDAL_STOPS.forEachIndexed { i, spec ->
+                            val index = MANUAL_STOPS.size + i
+                            StopKnob(spec, pulled = index in controller.activeStops) {
+                                controller.toggleStop(index)
+                            }
+                        }
+                    }
+                }
+                Column(Modifier.weight(3f)) {
+                    DivisionLabel("Accessori")
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        StopKnob(
+                            StopSpec("Tremolo", ""),
+                            pulled = controller.tremulant,
+                            onClick = controller::toggleTremulant,
+                        )
+                        // Sub-octave coupler: every key also plays its lower
+                        // octave. The budget cousin of a 16' manual stop.
+                        StopKnob(
+                            StopSpec("Ottava", "Bassa"),
+                            pulled = controller.subOctaveCoupler,
+                            onClick = controller::toggleSubOctaveCoupler,
+                        )
+                        // General Cancel: retires everything. A momentary
+                        // piston, so it never shows as pulled.
+                        StopKnob(
+                            StopSpec("General", "Cancel"),
+                            pulled = false,
+                            engraving = CancelEngraving,
+                            onClick = controller::generalCancel,
+                        )
+                    }
+                }
             }
 
             Row(
@@ -125,16 +169,28 @@ fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+private fun DivisionLabel(name: String) {
+    Text(
+        text = name.uppercase(),
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        color = Gold.copy(alpha = 0.55f),
+        fontFamily = FontFamily.Serif,
+        fontSize = 9.sp,
+        letterSpacing = 3.sp,
+    )
+}
+
 /**
  * One drawknob. Pulled knobs sit "out": brighter bone, brass ring, a bit of
  * shadow. Pushed-in knobs recede into the panel shade.
  */
 @Composable
-private fun DrawKnob(
-    title: String,
-    subtitle: String,
+private fun StopKnob(
+    spec: StopSpec,
     pulled: Boolean,
-    engraving: Color = Engraving,
+    engraving: Color = if (spec.reed) ReedEngraving else Engraving,
     onClick: () -> Unit,
 ) {
     val face = if (pulled) {
@@ -145,12 +201,12 @@ private fun DrawKnob(
 
     Box(
         modifier = Modifier
-            .size(86.dp)
-            .shadow(if (pulled) 10.dp else 2.dp, CircleShape)
+            .size(64.dp)
+            .shadow(if (pulled) 8.dp else 2.dp, CircleShape)
             .clip(CircleShape)
             .background(face)
             .border(
-                width = if (pulled) 3.dp else 2.dp,
+                width = if (pulled) 2.dp else 1.dp,
                 color = if (pulled) Gold else Color(0xFF14100B),
                 shape = CircleShape,
             )
@@ -165,20 +221,21 @@ private fun DrawKnob(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = title.uppercase(),
+                text = spec.title.uppercase(),
                 color = engraving,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
-                letterSpacing = 1.sp,
+                fontSize = 8.sp,
+                letterSpacing = 0.5.sp,
+                maxLines = 1,
             )
-            if (subtitle.isNotEmpty()) {
+            if (spec.subtitle.isNotEmpty()) {
                 Text(
-                    text = subtitle.uppercase(),
+                    text = spec.subtitle.uppercase(),
                     color = engraving,
                     fontFamily = FontFamily.Serif,
-                    fontSize = 10.sp,
-                    letterSpacing = 1.sp,
+                    fontSize = 8.sp,
+                    letterSpacing = 0.5.sp,
                 )
             }
         }
