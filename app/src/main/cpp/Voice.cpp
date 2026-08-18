@@ -46,6 +46,14 @@ void Voice::start(int note, uint32_t stopMask, float sampleRate, uint32_t age) {
     // Pack only the harmonics we'll actually hear. Anything at or above
     // ~0.45 * sampleRate gets dropped — pushing partials past Nyquist gives
     // aliasing, which on an organ sounds like a broken AM radio.
+    // Cheap LCG for phases/detune. Only ever touched from the audio thread
+    // (start() runs inside the event drain), so a plain static is fine.
+    static uint32_t rng = 0x6f726775;  // "orgu"
+    auto frand = []() {  // uniform [0, 1)
+        rng = rng * 1664525u + 1013904223u;
+        return static_cast<float>(rng >> 8) * (1.0f / 16777216.0f);
+    };
+
     count_ = 0;
     float ampSum = 0.0f;
     for (int h = 0; h < kMaxHarmonics; ++h) {
@@ -54,17 +62,23 @@ void Voice::start(int note, uint32_t stopMask, float sampleRate, uint32_t age) {
         const float f = freq * static_cast<float>(h + 1);
         if (f >= sampleRate * 0.45f) break;  // higher harmonics only get worse
         amp_[count_] = a;
-        inc_[count_] = f * kTableSize / sampleRate;
-        phase_[count_] = 0.0f;
+        // Random start phase + a whisker of detune (±0.1%) per harmonic.
+        // Phase-locked sines all starting at zero sum into a buzzy, sawtooth-
+        // ish wave — the app's early "car horn" period. Real pipes share
+        // neither phase nor exact pitch; the detune adds a slow, gentle
+        // shimmer as harmonics drift against each other.
+        const float detune = 1.0f + (frand() - 0.5f) * 0.002f;
+        inc_[count_] = f * detune * kTableSize / sampleRate;
+        phase_[count_] = frand() * kTableSize;
         ampSum += a;
         ++count_;
     }
 
     // Normalize by sqrt of the amplitude sum: keeps stops in the same
     // loudness ballpark while still letting Tutti (more harmonics = more
-    // power) sound bigger, like it should. The 0.15 is per-voice headroom
+    // power) sound bigger, like it should. The 0.2 is per-voice headroom
     // so a two-handed chord doesn't slam the master limiter instantly.
-    gain_ = (ampSum > 0.0f) ? 0.15f / std::sqrt(ampSum) : 0.0f;
+    gain_ = (ampSum > 0.0f) ? 0.2f / std::sqrt(ampSum) : 0.0f;
 
     // Envelope steps are per-sample deltas for a linear ramp.
     attackStep_ = 1.0f / (attackMs * 0.001f * sampleRate);

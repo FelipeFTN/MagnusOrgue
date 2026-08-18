@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "EventQueue.h"
+#include "Reverb.h"
 #include "VoiceManager.h"
 
 // Owns the Oboe output stream and everything that runs on the audio thread.
@@ -41,6 +42,7 @@ private:
 
     EventQueue queue_;
     VoiceManager voices_;
+    Reverb reverb_;
     uint32_t stopMask_ = 1;  // Principal 8' pulled by default
 
     std::atomic<float> targetGain_{0.8f};

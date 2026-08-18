@@ -26,9 +26,10 @@ struct StopDefinition {
 constexpr StopDefinition kStops[] = {
     {
         // The bread-and-butter organ sound. Full fundamental, harmonics
-        // rolling off smoothly.
+        // rolling off smoothly. First version had h2-h4 hotter and sounded
+        // like a ferry announcing departure — keep the mids modest.
         "Principal 8'",
-        {1.00f, 0.45f, 0.28f, 0.14f, 0.10f, 0.06f, 0.04f, 0.02f,
+        {1.00f, 0.32f, 0.18f, 0.10f, 0.07f, 0.04f, 0.03f, 0.02f,
          0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f},
         10.0f, 90.0f,
     },

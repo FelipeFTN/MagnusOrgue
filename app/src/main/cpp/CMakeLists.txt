@@ -10,6 +10,7 @@ find_package(oboe REQUIRED CONFIG)
 add_library(magnusorgue SHARED
         jni_bridge.cpp
         AudioEngine.cpp
+        Reverb.cpp
         Voice.cpp
         VoiceManager.cpp)
 

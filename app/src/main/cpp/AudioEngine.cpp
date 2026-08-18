@@ -50,6 +50,10 @@ bool AudioEngine::start() {
     // Scratch buffer big enough for any callback size we could see.
     mono_.assign(static_cast<size_t>(stream_->getBufferCapacityInFrames()) + 1024, 0.0f);
 
+    // Reverb delay lines depend on the sample rate, so (re)build them here,
+    // safely off the audio thread.
+    reverb_.prepare(sampleRate_);
+
     // Log what we actually got — devices love to silently downgrade these.
     LOGI("Stream open: %d Hz, burst %d, buffer %d, perf=%s, sharing=%s",
          stream_->getSampleRate(), stream_->getFramesPerBurst(),
@@ -112,17 +116,21 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
 
     std::memset(mono_.data(), 0, sizeof(float) * numFrames);
     voices_.render(mono_.data(), numFrames);
+    reverb_.process(mono_.data(), numFrames);
 
     // Mono → interleaved stereo, with a one-pole smoother on the gain (a raw
     // jump on the volume slider = zipper noise) and tanh as a soft safety
     // limiter — a 10-finger Tutti chord overshoots 1.0 and hard clipping
     // sounds like a chainsaw, while tanh just leans into it politely.
+    // The drive used to be *4.0 here, which saturated single notes and made
+    // everything honk. Lesson learned: the limiter is a seatbelt, not an
+    // effect.
     auto* out = static_cast<float*>(audioData);
     const float target = targetGain_.load(std::memory_order_relaxed);
     const int channels = stream->getChannelCount();
     for (int i = 0; i < numFrames; ++i) {
         smoothedGain_ += (target - smoothedGain_) * 0.005f;
-        const float s = std::tanh(mono_[i] * smoothedGain_ * 4.0f) * 0.9f;
+        const float s = std::tanh(mono_[i] * smoothedGain_ * 1.5f) * 0.9f;
         for (int c = 0; c < channels; ++c) {
             out[i * channels + c] = s;
         }
