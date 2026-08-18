@@ -29,7 +29,7 @@ The whole point is **low latency** and **zero friction**. Everything else is sec
 
 - 🎹 **On-screen keyboard** — multitouch, ~2 octaves in landscape, octave shift buttons
 - 🔌 **USB MIDI via OTG** — automatic plug-and-play detection, hotplug safe, no permission dialogs
-- 🎛️ **Four organ stops** — Principal 8', Flute 8', Strings 8' and Tutti
+- 🎛️ **Four real stops** — Principale 8', Flauto 8', Gamba 8' and Ottava 4', sampled from the Giubiasco organ; they combine like real ranks
 - ⚡ **Low-latency audio** — native C++ engine on top of [Oboe](https://github.com/google/oboe), targeting < 20 ms
 - 🎼 **32-voice polyphony** — big chords with both hands, no crackles
 - 🔇 **Panic button** — because stuck notes happen to everyone
@@ -40,7 +40,7 @@ The whole point is **low latency** and **zero friction**. Everything else is sec
 |---|---|
 | UI | Kotlin + Jetpack Compose (custom `Canvas` keyboard) |
 | MIDI | `android.media.midi` (`MidiManager`) |
-| Audio | C++ / NDK with Oboe, additive synthesis |
+| Audio | C++ / NDK with Oboe, sampled pipes (Giubiasco) |
 | Bridge | A deliberately tiny JNI surface (7 functions) |
 | Build | Gradle (Kotlin DSL) + CMake |
 
@@ -65,6 +65,13 @@ Design docs live in [`/docs`](docs/):
 
 Requirements: JDK 17+ and the Android SDK with NDK + CMake (a `local.properties`
 pointing at your SDK). Then:
+
+The organ samples are not in the repo (they belong to the sample set's
+author). Import them once from a local GrandOrgue set:
+
+```bash
+python3 tools/import_ranks.py "~/Documents/GrandOrgue/Organs/Giubiasco_GrandOrgue"
+```
 
 ```bash
 ./gradlew assembleDebug         # build the APK

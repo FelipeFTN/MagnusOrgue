@@ -23,8 +23,6 @@ imported from the Giubiasco GrandOrgue set with `tools/import_ranks.py`:
 - Release samples (R0..R3 in the set) are not imported yet — a ~140 ms
   envelope release fakes the pipe closing. TODO, they'd double the assets.
 
-The original three-way analysis, kept for the record:
-
 ## Output: Oboe
 
 [Oboe](https://github.com/google/oboe) is Google's C++ library that picks AAudio (API 27+) or OpenSL ES automatically.
@@ -58,11 +56,11 @@ onAudioReady(float* output, int numFrames):        // real-time thread
 
 ### Voice
 
-One playing note. Holds: MIDI note number, phase accumulators for each harmonic, envelope state.
+One playing note: up to one sample layer per pulled stop, all summed.
 
-- **Envelope:** simple attack (~5–15 ms) and release (~50–150 ms) ramps. Organs are essentially on/off — the short ramps exist only to prevent clicks. No decay/sustain stages needed (sustain = 1.0 forever).
-- **Pitch:** `freq = 440 * 2^((note - 69) / 12)`.
-- **Rendering:** sum of `amp[h] * sin(phase[h])` per harmonic; skip harmonics above Nyquist.
+- **Per layer:** nearest pipe by root note, fractional read position, linear interpolation, wrap inside the sustain loop.
+- **Pitch shift:** `inc = 2^((note - rootNote) / 12) * (packRate / deviceRate)` — at most ±1 semitone of shift thanks to the minor-third pipe spacing.
+- **Envelope:** a de-clicker only. Attack ~4 ms (the recording carries the real pipe speech); release ~140 ms fakes the pipe closing until release samples land.
 
 ### VoiceManager (polyphony)
 
@@ -71,19 +69,18 @@ One playing note. Holds: MIDI note number, phase accumulators for each harmonic,
 - `noteOff`: put matching voice(s) into release stage.
 - `allNotesOff`: hard-release everything (panic uses a very short release, not a hard cut, to avoid a click).
 
-### Stops (timbres)
+### Stops (ranks)
 
-A stop is just a table:
+A stop is a pointer to its rank pack:
 
 ```cpp
 struct StopDefinition {
-    const char* name;          // "Principal 8'"
-    float harmonics[16];       // amplitude per harmonic (0 = unused)
-    float attackMs, releaseMs;
+    const char* name;       // "Principale 8'"
+    const char* assetPath;  // "ranks/principale8.mrk"
 };
 ```
 
-MVP ships 4 stops. Adding a stop = adding one table entry. (P2: allow combining stops, which just sums harmonic tables.)
+Current registration: Principale 8', Flauto 8' (a camino), Gamba 8', Ottava 4'. Stops combine as bitmask layers; adding a stop = one importer entry + one table entry + one knob.
 
 ## Rules of the real-time thread
 
