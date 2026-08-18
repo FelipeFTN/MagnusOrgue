@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/UI-Kotlin%20%2B%20Compose-7f52ff?logo=kotlin&logoColor=white" alt="Kotlin + Compose"/>
   <img src="https://img.shields.io/badge/audio-C%2B%2B%20%2B%20Oboe-00599c?logo=cplusplus&logoColor=white" alt="C++ + Oboe"/>
   <img src="https://img.shields.io/badge/status-in%20design-c99a3a" alt="Status: in design"/>
+  <img src="https://img.shields.io/badge/license-GPL--3.0-bd0000" alt="License: GPL-3.0"/>
 </p>
 
 ---
@@ -79,4 +80,4 @@ Details and acceptance criteria per phase in [07-roadmap.md](docs/07-roadmap.md)
 
 ## License
 
-TBD.
+MagnusOrgue is free software, released under the [GNU General Public License v3.0](LICENSE). You can redistribute it and/or modify it under the terms of the GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
