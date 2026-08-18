@@ -4,35 +4,26 @@
 
 Polyphonic organ sound with **touch-to-sound latency under 40 ms** (target < 20 ms), no clicks or dropouts with 16–32 simultaneous voices.
 
-## Synthesis approach — three options considered
+## Synthesis approach
 
-### Option A — Additive/oscillator synthesis in C++ (chosen for the MVP)
+The MVP shipped with **additive synthesis** (Option A below) — zero assets,
+great latency, but ultimately it sounded electronic ("like a horn", per the
+first field test). The engine now plays **sampled pipes** (Option B),
+imported from the Giubiasco GrandOrgue set with `tools/import_ranks.py`:
 
-Generate organ tones directly from **stacked sine waves** (an organ pipe is very close to a sum of harmonics — this is literally how Hammond drawbars work).
+- One `.mrk` pack per stop: mono 16-bit attack samples, one pipe per minor
+  third (the engine pitch-shifts at most ±1 semitone to the nearest pipe),
+  truncated right after the sustain loop. ~47 MB for four ranks.
+- Each voice loops its pipe recording forever; loop points come from the
+  `smpl` chunk of the original WAVs. Root pitch (with tuning fraction) too,
+  so the organ keeps its real tuning.
+- A stop is a rank; pulled stops = one sample layer each per voice.
+- The packs stay out of git (the samples belong to the set's author);
+  anyone building the app runs the importer against their own copy.
+- Release samples (R0..R3 in the set) are not imported yet — a ~140 ms
+  envelope release fakes the pipe closing. TODO, they'd double the assets.
 
-- Each stop = a recipe of harmonic amplitudes, e.g.:
-  - *Principal 8'*: strong fundamental + moderate 2nd/3rd harmonics
-  - *Flute 8'*: almost pure fundamental + a bit of 2nd
-  - *Strings 8'*: brighter series, more upper harmonics
-  - *Tutti*: sum of the above + octave (4') and fifth (2⅔')
-- **Pros:** zero assets (tiny APK), infinite sustain is natural (organs sustain forever), trivial to add stops, fully controllable, no licensing questions.
-- **Cons:** sounds "clean/electronic" rather than a sampled pipe organ; needs a bit of DSP care (band-limiting is easy since we only add sines below Nyquist).
-
-### Option B — Sample playback (WAV per note or multisampled)
-
-Ship recorded organ samples, loop them for sustain.
-
-- **Pros:** most realistic sound.
-- **Cons:** finding well-licensed organ samples, loop-point editing, bigger APK, more engine code (interpolation, loop crossfades).
-
-### Option C — FluidSynth + SoundFont (.sf2)
-
-Embed FluidSynth (LGPL) and load an organ SF2.
-
-- **Pros:** instant access to many timbres; mature engine.
-- **Cons:** heavier dependency, LGPL compliance on Android is fiddly, latency tuning is harder, SF2 quality varies.
-
-**Decision: start with Option A.** It gets a working, great-latency instrument with the least risk. The engine is structured so a `Voice` implementation can later be swapped for sample playback (Option B) without touching MIDI/UI — that swap is a P2 roadmap item.
+The original three-way analysis, kept for the record:
 
 ## Output: Oboe
 
