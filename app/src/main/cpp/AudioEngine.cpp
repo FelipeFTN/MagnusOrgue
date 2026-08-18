@@ -108,6 +108,9 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
                 // you want musically anyway.
                 stopMask_ = static_cast<uint32_t>(e.value) & ((1u << kStopCount) - 1u);
                 break;
+            case Event::SetTremulant:
+                tremulant_ = (e.value != 0);
+                break;
             case Event::AllOff:
                 voices_.allOff();
                 break;
@@ -121,6 +124,22 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
 
     std::memset(mono_.data(), 0, sizeof(float) * numFrames);
     voices_.render(mono_.data(), numFrames);
+
+    // Tremulant sits BEFORE the reverb: the wind wobbles, the room doesn't.
+    // ~5.5 Hz and shallow — organ tremulants breathe, they don't throb.
+    const float tremTarget = tremulant_ ? 0.09f : 0.0f;
+    if (tremDepth_ > 0.0001f || tremTarget > 0.0f) {
+        const float phaseInc = 2.0f * static_cast<float>(M_PI) * 5.5f / sampleRate_;
+        for (int i = 0; i < numFrames; ++i) {
+            tremDepth_ += (tremTarget - tremDepth_) * 0.0005f;
+            mono_[i] *= 1.0f + tremDepth_ * std::sin(tremPhase_);
+            tremPhase_ += phaseInc;
+            if (tremPhase_ > 2.0f * static_cast<float>(M_PI)) {
+                tremPhase_ -= 2.0f * static_cast<float>(M_PI);
+            }
+        }
+    }
+
     reverb_.process(mono_.data(), numFrames);
 
     // Mono → interleaved stereo, with a one-pole smoother on the gain (a raw

@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         // Hardware volume keys should drive media volume, not ringtone.
         volumeControlStream = AudioManager.STREAM_MUSIC
 
-        // ~47 MB of pipes into RAM. Takes a few hundred ms on a decent
+        // ~100 MB of pipes into RAM. Takes around a second on a decent
         // phone; blocking onCreate keeps the "first note works" guarantee.
         // TODO: load async behind a splash if it ever feels sluggish.
         AudioEngine.loadRanks(assets)

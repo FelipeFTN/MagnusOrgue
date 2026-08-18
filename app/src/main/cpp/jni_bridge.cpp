@@ -68,6 +68,11 @@ Java_com_felipeftn_magnusorgue_audio_AudioEngine_setStopMask(JNIEnv*, jobject, j
 }
 
 JNIEXPORT void JNICALL
+Java_com_felipeftn_magnusorgue_audio_AudioEngine_setTremulant(JNIEnv*, jobject, jboolean on) {
+    gEngine.pushEvent({Event::SetTremulant, on ? 1 : 0});
+}
+
+JNIEXPORT void JNICALL
 Java_com_felipeftn_magnusorgue_audio_AudioEngine_setVolume(JNIEnv*, jobject, jfloat gain) {
     if (gain < 0.0f) gain = 0.0f;
     if (gain > 1.0f) gain = 1.0f;

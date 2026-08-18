@@ -55,6 +55,13 @@ private:
     std::atomic<float> targetGain_{0.8f};
     float smoothedGain_ = 0.0f;
 
+    // Tremulant: a slow amplitude wobble on the whole organ, like the
+    // real device shaking the wind supply. Depth eases in/out so toggling
+    // the knob mid-chord doesn't step.
+    bool tremulant_ = false;
+    float tremPhase_ = 0.0f;
+    float tremDepth_ = 0.0f;
+
     float sampleRate_ = 48000.0f;
     std::vector<float> mono_;  // scratch buffer, sized once in start()
 };

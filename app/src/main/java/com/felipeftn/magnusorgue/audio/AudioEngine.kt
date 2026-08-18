@@ -37,6 +37,9 @@ object AudioEngine {
      */
     external fun setStopMask(mask: Int)
 
+    /** Tremulant on/off — a gentle wind wobble on the whole organ. */
+    external fun setTremulant(on: Boolean)
+
     /** Master gain, 0.0..1.0. Smoothed on the native side. */
     external fun setVolume(gain: Float)
 
