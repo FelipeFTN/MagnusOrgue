@@ -1,0 +1,82 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="MagnusOrgue" width="140"/>
+</p>
+
+<h1 align="center">MagnusOrgue</h1>
+
+<p align="center">
+  A MIDI virtual pipe organ for Android.<br/>
+  Plug any MIDI keyboard in through an OTG cable and play — or just use the on-screen keys.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-Android%208.0%2B-3ddc84?logo=android&logoColor=white" alt="Android 8.0+"/>
+  <img src="https://img.shields.io/badge/UI-Kotlin%20%2B%20Compose-7f52ff?logo=kotlin&logoColor=white" alt="Kotlin + Compose"/>
+  <img src="https://img.shields.io/badge/audio-C%2B%2B%20%2B%20Oboe-00599c?logo=cplusplus&logoColor=white" alt="C++ + Oboe"/>
+  <img src="https://img.shields.io/badge/status-in%20design-c99a3a" alt="Status: in design"/>
+</p>
+
+---
+
+## About
+
+MagnusOrgue turns an Android phone into a small, no-fuss virtual organ. There's no DAW, no patch editor, no cloud account — you open the app, you hear an organ. If you own a "mute" MIDI controller, connect it with a USB OTG cable and it just works, no configuration required.
+
+The whole point is **low latency** and **zero friction**. Everything else is secondary.
+
+## Features
+
+- 🎹 **On-screen keyboard** — multitouch, ~2 octaves in landscape, octave shift buttons
+- 🔌 **USB MIDI via OTG** — automatic plug-and-play detection, hotplug safe, no permission dialogs
+- 🎛️ **Four organ stops** — Principal 8', Flute 8', Strings 8' and Tutti
+- ⚡ **Low-latency audio** — native C++ engine on top of [Oboe](https://github.com/google/oboe), targeting < 20 ms
+- 🎼 **32-voice polyphony** — big chords with both hands, no crackles
+- 🔇 **Panic button** — because stuck notes happen to everyone
+
+## How it's built
+
+| Layer | Tech |
+|---|---|
+| UI | Kotlin + Jetpack Compose (custom `Canvas` keyboard) |
+| MIDI | `android.media.midi` (`MidiManager`) |
+| Audio | C++ / NDK with Oboe, additive synthesis |
+| Bridge | A deliberately tiny JNI surface (7 functions) |
+| Build | Gradle (Kotlin DSL) + CMake |
+
+Minimum SDK is **26** (Android 8.0). No sensitive permissions, no network access, no analytics.
+
+## Documentation
+
+Design docs live in [`/docs`](docs/):
+
+| Doc | Contents |
+|---|---|
+| [01-overview.md](docs/01-overview.md) | Product vision, MVP scope, success criteria |
+| [02-features.md](docs/02-features.md) | Full feature list with priorities |
+| [03-architecture.md](docs/03-architecture.md) | Stack, module structure, JNI interface, threading |
+| [04-midi.md](docs/04-midi.md) | MIDI over OTG: connection flow, message parsing, edge cases |
+| [05-audio.md](docs/05-audio.md) | Audio engine: synthesis approach, latency budget, real-time rules |
+| [06-ui-ux.md](docs/06-ui-ux.md) | Screens, keyboard component, states and feedback |
+| [07-roadmap.md](docs/07-roadmap.md) | Build phases — each one ends runnable on a phone |
+| [08-testing.md](docs/08-testing.md) | Testing on a real device: adb, MIDI checklists, latency checks |
+
+## Building
+
+> The app itself is not scaffolded yet — see the [roadmap](docs/07-roadmap.md). Once Phase 0 lands:
+
+```bash
+./gradlew installDebug          # build and install on a connected phone
+adb logcat -s MagnusOrgue       # tail the app logs
+```
+
+Tip: pair the phone over **Wi-Fi adb** (Developer options → Wireless debugging), because the USB port will be occupied by the OTG cable and the MIDI keyboard.
+
+## Roadmap at a glance
+
+`skeleton → audio engine → on-screen keyboard → MIDI over OTG → organ voicing → polish`
+
+Details and acceptance criteria per phase in [07-roadmap.md](docs/07-roadmap.md).
+
+## License
+
+TBD.
