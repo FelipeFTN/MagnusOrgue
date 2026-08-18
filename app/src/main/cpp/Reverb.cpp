@@ -8,7 +8,8 @@ constexpr float kAllpassMs[2] = {5.0f, 1.7f};
 
 constexpr float kFeedback = 0.78f;  // tail length — higher = bigger church
 constexpr float kDamp = 0.30f;      // treble absorption in the tail
-constexpr float kWet = 0.35f;       // how much room to blend in
+constexpr float kWet = 0.22f;       // gentler now: the Giubiasco samples
+                                    // already carry their own room
 }  // namespace
 
 void Reverb::prepare(float sampleRate) {

@@ -2,7 +2,11 @@
 // Kept intentionally dumb: unpack the argument, poke the engine, done.
 // All the thinking happens in AudioEngine.
 
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include <jni.h>
+
+#include <vector>
 
 #include "AudioEngine.h"
 
@@ -15,6 +19,30 @@ extern "C" {
 JNIEXPORT jboolean JNICALL
 Java_com_felipeftn_magnusorgue_audio_AudioEngine_start(JNIEnv*, jobject) {
     return gEngine.start() ? JNI_TRUE : JNI_FALSE;
+}
+
+// Loads every rank pack from the APK's assets. Called once at startup,
+// before start() — the audio thread reads ranks lock-free, so they must
+// be settled before the stream exists.
+JNIEXPORT jboolean JNICALL
+Java_com_felipeftn_magnusorgue_audio_AudioEngine_loadRanks(JNIEnv* env, jobject,
+                                                           jobject assetManager) {
+    AAssetManager* am = AAssetManager_fromJava(env, assetManager);
+    if (am == nullptr) return JNI_FALSE;
+
+    bool allOk = true;
+    for (int s = 0; s < kStopCount; ++s) {
+        AAsset* asset = AAssetManager_open(am, kStops[s].assetPath, AASSET_MODE_BUFFER);
+        if (asset == nullptr) {
+            allOk = false;  // pack missing — that stop will just be silent
+            continue;
+        }
+        const auto size = static_cast<size_t>(AAsset_getLength(asset));
+        const auto* bytes = static_cast<const uint8_t*>(AAsset_getBuffer(asset));
+        if (bytes == nullptr || !gEngine.loadRank(s, bytes, size)) allOk = false;
+        AAsset_close(asset);
+    }
+    return allOk ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL

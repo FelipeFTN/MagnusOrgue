@@ -1,5 +1,7 @@
 package com.felipeftn.magnusorgue.audio
 
+import android.content.res.AssetManager
+
 /**
  * Kotlin face of the native audio engine (see src/main/cpp).
  *
@@ -12,6 +14,13 @@ object AudioEngine {
     init {
         System.loadLibrary("magnusorgue")
     }
+
+    /**
+     * Loads the sampled ranks from assets/ranks/. Call once, before start().
+     * Returns false if any pack is missing or corrupt (that stop stays
+     * silent; everything else still works).
+     */
+    external fun loadRanks(assetManager: AssetManager): Boolean
 
     /** Opens and starts the output stream. Returns false if the device said no. */
     external fun start(): Boolean

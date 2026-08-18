@@ -48,10 +48,10 @@ import com.felipeftn.magnusorgue.ui.theme.Gold
  * TODO: one source of truth for this list instead of a comment and a prayer.
  */
 private val STOPS = listOf(
-    "Principal" to "8'",
-    "Flute" to "8'",
-    "Strings" to "8'",
-    "Tutti" to "",
+    "Principale" to "8'",
+    "Flauto" to "8'",
+    "Gamba" to "8'",
+    "Ottava" to "4'",
 )
 
 // Console palette. Dark walnut, brass, bone.

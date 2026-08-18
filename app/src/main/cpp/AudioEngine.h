@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "EventQueue.h"
+#include "Rank.h"
 #include "Reverb.h"
 #include "VoiceManager.h"
 
@@ -26,6 +27,11 @@ public:
     bool start();
     void stop();
 
+    // Parses one .mrk pack into ranks_[stopIndex]. Must be called before
+    // start() — the audio thread reads the ranks without any locking, so
+    // they have to be immutable by the time the stream runs.
+    bool loadRank(int stopIndex, const uint8_t* bytes, size_t size);
+
     void pushEvent(const Event& e);
     void setVolume(float gain) { targetGain_.store(gain, std::memory_order_relaxed); }
 
@@ -43,7 +49,8 @@ private:
     EventQueue queue_;
     VoiceManager voices_;
     Reverb reverb_;
-    uint32_t stopMask_ = 1;  // Principal 8' pulled by default
+    Rank ranks_[kStopCount];
+    uint32_t stopMask_ = 1;  // Principale 8' pulled by default
 
     std::atomic<float> targetGain_{0.8f};
     float smoothedGain_ = 0.0f;

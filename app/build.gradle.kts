@@ -24,6 +24,12 @@ android {
         }
     }
 
+    androidResources {
+        // The rank packs are raw PCM; deflate saves almost nothing and
+        // uncompressed assets can be read straight off the APK.
+        noCompress += "mrk"
+    }
+
     buildFeatures {
         compose = true
         // Prefab unpacks Oboe's headers + .so straight from the AAR,

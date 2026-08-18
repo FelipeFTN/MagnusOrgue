@@ -1,21 +1,22 @@
 #pragma once
 
 #include <cstdint>
+
+#include "Rank.h"
 #include "Stops.h"
 
-// One sounding note: a bank of sine harmonics (wavetable lookups) plus a
-// dead-simple attack/release envelope. Organs have no decay/sustain stages —
-// a pipe speaks, holds forever, then stops. The short ramps only exist so
-// the edges don't click.
+// One sounding note: up to one sample layer per pulled stop, all summed.
+// Each layer loops its pipe recording forever (a pipe never runs out of
+// wind), pitch-shifted from the nearest sampled pipe to the played note.
+//
+// The envelope is only a de-clicker now: the attack ramp is a few ms (the
+// recording carries the real pipe speech), the release fakes the pipe
+// closing since we don't ship release samples. TODO: real release samples
+// — the set has them (R0..R3), they're just a lot more data.
 class Voice {
 public:
-    // Builds the shared sine table. Call once, from a normal thread,
-    // before the first render.
-    static void initWavetable();
-
-    // stopMask: bitmask over kStops. Like on a real organ, pulling several
-    // stops just stacks their pipe ranks — here, their harmonic recipes.
-    void start(int note, uint32_t stopMask, float sampleRate, uint32_t age);
+    void start(int note, uint32_t stopMask, const Rank* ranks,
+               float outputRate, uint32_t age);
     void release();              // normal note-off
     void fastRelease();          // panic: ~10 ms fade, quick but not a click
     void retrigger();            // same note struck again: restart the attack
@@ -32,24 +33,23 @@ public:
 private:
     enum class Stage { Attack, Sustain, Release };
 
-    static constexpr int kTableSize = 2048;
+    struct Layer {
+        const Pipe* pipe;
+        float gain;
+        double pos;  // fractional read position, in frames
+        double inc;  // frames advanced per output sample (the pitch shift)
+    };
 
     bool active_ = false;
     int note_ = -1;
     uint32_t age_ = 0;
 
-    // Per-harmonic state. Zero-amplitude and above-Nyquist harmonics are
-    // filtered out in start(), so these arrays are packed and count_ is
-    // usually well below kMaxHarmonics.
-    int count_ = 0;
-    float phase_[kMaxHarmonics];   // in table-index units, not radians
-    float inc_[kMaxHarmonics];
-    float amp_[kMaxHarmonics];
-    float gain_ = 0.0f;
+    Layer layers_[kStopCount];
+    int layerCount_ = 0;
 
     Stage stage_ = Stage::Attack;
     float env_ = 0.0f;
     float attackStep_ = 0.0f;
     float releaseStep_ = 0.0f;
-    float sampleRate_ = 48000.0f;
+    float outputRate_ = 48000.0f;
 };

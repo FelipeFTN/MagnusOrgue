@@ -8,7 +8,7 @@ class VoiceManager {
 public:
     static constexpr int kMaxVoices = 32;
 
-    void noteOn(int note, uint32_t stopMask, float sampleRate);
+    void noteOn(int note, uint32_t stopMask, const Rank* ranks, float outputRate);
     void noteOff(int note);
     void allOff();  // panic — fast-fade everything
 

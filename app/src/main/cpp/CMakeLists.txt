@@ -10,6 +10,7 @@ find_package(oboe REQUIRED CONFIG)
 add_library(magnusorgue SHARED
         jni_bridge.cpp
         AudioEngine.cpp
+        Rank.cpp
         Reverb.cpp
         Voice.cpp
         VoiceManager.cpp)
@@ -18,4 +19,5 @@ target_compile_options(magnusorgue PRIVATE -Wall -Wextra -O2)
 
 target_link_libraries(magnusorgue
         oboe::oboe
+        android   # AAssetManager, for loading the rank packs
         log)

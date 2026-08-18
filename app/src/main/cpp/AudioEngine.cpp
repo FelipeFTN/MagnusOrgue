@@ -20,8 +20,6 @@ bool AudioEngine::start() {
         stream_.reset();
     }
 
-    Voice::initWavetable();
-
     // Ask for the low-latency path. Notably we do NOT set a sample rate:
     // taking the device's native rate skips the resampler entirely.
     // See https://github.com/google/oboe/blob/main/docs/FullGuide.md
@@ -74,6 +72,13 @@ void AudioEngine::stop() {
     }
 }
 
+bool AudioEngine::loadRank(int stopIndex, const uint8_t* bytes, size_t size) {
+    if (stopIndex < 0 || stopIndex >= kStopCount) return false;
+    const bool ok = ranks_[stopIndex].load(bytes, size);
+    if (!ok) LOGE("Failed to load rank %d (%s)", stopIndex, kStops[stopIndex].name);
+    return ok;
+}
+
 void AudioEngine::pushEvent(const Event& e) {
     // The ring buffer is single-producer; this mutex is what makes "single"
     // true. It's only ever contended between the UI and MIDI threads for
@@ -92,7 +97,7 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
         switch (e.type) {
             case Event::NoteOn:
                 // No stops pulled = silence, same as the real thing.
-                if (stopMask_ != 0) voices_.noteOn(e.value, stopMask_, sampleRate_);
+                if (stopMask_ != 0) voices_.noteOn(e.value, stopMask_, ranks_, sampleRate_);
                 break;
             case Event::NoteOff:
                 voices_.noteOff(e.value);
