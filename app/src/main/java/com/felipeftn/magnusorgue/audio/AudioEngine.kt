@@ -22,8 +22,11 @@ object AudioEngine {
     external fun noteOn(note: Int)
     external fun noteOff(note: Int)
 
-    /** Selects a stop by index — must match the native kStops table order. */
-    external fun setStop(index: Int)
+    /**
+     * Pulled stops as a bitmask (bit N = stop N in the native kStops order).
+     * Zero means no stops — which, like on a real organ, means silence.
+     */
+    external fun setStopMask(mask: Int)
 
     /** Master gain, 0.0..1.0. Smoothed on the native side. */
     external fun setVolume(gain: Float)

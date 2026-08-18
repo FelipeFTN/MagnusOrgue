@@ -18,11 +18,12 @@ import com.felipeftn.magnusorgue.ui.theme.Gold
 import com.felipeftn.magnusorgue.ui.theme.Ivory
 import kotlin.math.abs
 
-// Keyboard geometry. None of the stock widgets look remotely like a keybed,
-// so this is a Canvas and some arithmetic.
+// The keyboard strip. Since the app went stops-first, this is mostly a
+// monitor: it mirrors whatever the MIDI keyboard plays. It stays touchable
+// though — handy for auditioning a registration with no keyboard around.
 //
-// The whole layout derives from the white keys: 15 equal columns (two
-// octaves plus the top C), with black keys floating on the boundaries.
+// The layout derives entirely from the white keys: N equal columns with the
+// black keys floating on the boundaries.
 
 /** Semitone offsets of the white keys within one octave (C D E F G A B). */
 private val WHITE_SEMIS = intArrayOf(0, 2, 4, 5, 7, 9, 11)
@@ -33,7 +34,6 @@ private val WHITE_SEMIS = intArrayOf(0, 2, 4, 5, 7, 9, 11)
  */
 private val BLACK_AFTER = mapOf(0 to 1, 1 to 3, 3 to 6, 4 to 8, 5 to 10)
 
-private const val WHITE_KEYS = 15
 private const val BLACK_HEIGHT = 0.62f // fraction of full key height
 private const val BLACK_WIDTH = 0.60f  // fraction of a white key's width
 
@@ -42,19 +42,24 @@ private val Ebony = Color(0xFF17171B)
 private val EbonyPressed = Color(0xFF8A6420)
 private val KeyGap = Color(0xFF0B0B0E)
 
+/**
+ * @param lowNote   MIDI note of the leftmost key; must be a C. Default C2.
+ * @param whiteKeys how many white keys wide. Default 36 = five octaves
+ *                  (C2..C7), roughly a real console's compass.
+ */
 @Composable
-fun KeyboardView(controller: OrganController, modifier: Modifier = Modifier) {
-    // baseOctave 4 -> C4 -> MIDI 60. (MIDI note = (octave + 1) * 12 for a C.)
-    val lowNote = (controller.baseOctave + 1) * 12
-
+fun KeyboardView(
+    controller: OrganController,
+    modifier: Modifier = Modifier,
+    lowNote: Int = 36,
+    whiteKeys: Int = 36,
+) {
     Canvas(
         modifier
             .background(KeyGap)
-            // Keyed on lowNote: shifting the octave restarts the gesture
-            // handler, and the finally below releases anything still held.
-            .pointerInput(lowNote) { trackTouches(controller, lowNote) }
+            .pointerInput(lowNote, whiteKeys) { trackTouches(controller, lowNote, whiteKeys) }
     ) {
-        drawKeyboard(controller.activeNotes, lowNote)
+        drawKeyboard(controller.activeNotes, lowNote, whiteKeys)
     }
 }
 
@@ -66,6 +71,7 @@ fun KeyboardView(controller: OrganController, modifier: Modifier = Modifier) {
 private suspend fun PointerInputScope.trackTouches(
     controller: OrganController,
     lowNote: Int,
+    whiteKeys: Int,
 ) {
     val held = mutableMapOf<PointerId, Int>()
     try {
@@ -75,7 +81,7 @@ private suspend fun PointerInputScope.trackTouches(
                 for (change in event.changes) {
                     val id = change.id
                     if (change.pressed && id !in held) {
-                        val note = noteAt(change.position.x, change.position.y, size, lowNote)
+                        val note = noteAt(change.position.x, change.position.y, size, lowNote, whiteKeys)
                         held[id] = note
                         controller.noteOn(note)
                     } else if (!change.pressed && id in held) {
@@ -88,18 +94,18 @@ private suspend fun PointerInputScope.trackTouches(
             }
         }
     } finally {
-        // The handler restarts on octave shift (and on dispose). Whatever
-        // was held would become a stuck note — the organist's nightmare.
+        // The handler restarts on dispose; anything still held would become
+        // a stuck note — the organist's nightmare.
         held.values.forEach(controller::noteOff)
     }
 }
 
 /** Maps a touch position to a MIDI note. Black keys win — they sit on top. */
-private fun noteAt(x: Float, y: Float, size: IntSize, lowNote: Int): Int {
-    val whiteW = size.width.toFloat() / WHITE_KEYS
+private fun noteAt(x: Float, y: Float, size: IntSize, lowNote: Int, whiteKeys: Int): Int {
+    val whiteW = size.width.toFloat() / whiteKeys
 
     if (y < size.height * BLACK_HEIGHT) {
-        for (i in 0 until WHITE_KEYS - 1) {
+        for (i in 0 until whiteKeys - 1) {
             val semi = BLACK_AFTER[i % 7] ?: continue
             val centerX = (i + 1) * whiteW // black keys sit on white-key boundaries
             if (abs(x - centerX) <= whiteW * BLACK_WIDTH / 2f) {
@@ -108,35 +114,35 @@ private fun noteAt(x: Float, y: Float, size: IntSize, lowNote: Int): Int {
         }
     }
 
-    val wi = (x / whiteW).toInt().coerceIn(0, WHITE_KEYS - 1)
+    val wi = (x / whiteW).toInt().coerceIn(0, whiteKeys - 1)
     return lowNote + (wi / 7) * 12 + WHITE_SEMIS[wi % 7]
 }
 
-private fun DrawScope.drawKeyboard(activeNotes: Set<Int>, lowNote: Int) {
-    val whiteW = size.width / WHITE_KEYS
+private fun DrawScope.drawKeyboard(activeNotes: Set<Int>, lowNote: Int, whiteKeys: Int) {
+    val whiteW = size.width / whiteKeys
 
     // White keys first, 1px gaps letting the background show as separators.
-    for (i in 0 until WHITE_KEYS) {
+    for (i in 0 until whiteKeys) {
         val note = lowNote + (i / 7) * 12 + WHITE_SEMIS[i % 7]
         drawRoundRect(
             color = if (note in activeNotes) IvoryPressed else Ivory,
             topLeft = Offset(i * whiteW + 1f, 0f),
             size = Size(whiteW - 2f, size.height),
-            cornerRadius = CornerRadius(8f, 8f),
+            cornerRadius = CornerRadius(4f, 4f),
         )
     }
 
     // Black keys painted over them.
     val blackW = whiteW * BLACK_WIDTH
     val blackH = size.height * BLACK_HEIGHT
-    for (i in 0 until WHITE_KEYS - 1) {
+    for (i in 0 until whiteKeys - 1) {
         val semi = BLACK_AFTER[i % 7] ?: continue
         val note = lowNote + (i / 7) * 12 + semi
         drawRoundRect(
             color = if (note in activeNotes) EbonyPressed else Ebony,
             topLeft = Offset((i + 1) * whiteW - blackW / 2f, 0f),
             size = Size(blackW, blackH),
-            cornerRadius = CornerRadius(6f, 6f),
+            cornerRadius = CornerRadius(3f, 3f),
         )
     }
 }

@@ -19,11 +19,8 @@ class OrganController {
     var activeNotes by mutableStateOf(emptySet<Int>())
         private set
 
-    var stopIndex by mutableStateOf(0)
-        private set
-
-    /** Bottom octave of the on-screen keyboard (C4 = octave 4 = MIDI 60). */
-    var baseOctave by mutableStateOf(4)
+    /** Indices of the pulled stops (into the shared stop list). */
+    var activeStops by mutableStateOf(setOf(0))
         private set
 
     var volume by mutableStateOf(0.8f)
@@ -59,9 +56,24 @@ class OrganController {
         synchronized(notesLock) { activeNotes = emptySet() }
     }
 
-    fun selectStop(index: Int) {
-        stopIndex = index
-        AudioEngine.setStop(index)
+    /** Pull or retire one stop. Stops combine, like ranks on a real organ. */
+    fun toggleStop(index: Int) {
+        activeStops = if (index in activeStops) activeStops - index else activeStops + index
+        pushStopMask()
+    }
+
+    /**
+     * The General Cancel piston: retires every stop and silences held
+     * notes. What the old PANIC button grew up into.
+     */
+    fun generalCancel() {
+        activeStops = emptySet()
+        pushStopMask()
+        panic()
+    }
+
+    private fun pushStopMask() {
+        AudioEngine.setStopMask(activeStops.fold(0) { mask, i -> mask or (1 shl i) })
     }
 
     // Not setVolume(): the `volume` property's generated setter already
@@ -69,10 +81,5 @@ class OrganController {
     fun changeVolume(value: Float) {
         volume = value
         AudioEngine.setVolume(value)
-    }
-
-    /** Shifts the on-screen keyboard. MIDI input is never transposed. */
-    fun shiftOctave(delta: Int) {
-        baseOctave = (baseOctave + delta).coerceIn(1, 6)
     }
 }

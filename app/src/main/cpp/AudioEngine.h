@@ -41,7 +41,7 @@ private:
 
     EventQueue queue_;
     VoiceManager voices_;
-    const StopDefinition* currentStop_ = &kStops[0];
+    uint32_t stopMask_ = 1;  // Principal 8' pulled by default
 
     std::atomic<float> targetGain_{0.8f};
     float smoothedGain_ = 0.0f;

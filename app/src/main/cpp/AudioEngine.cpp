@@ -87,18 +87,17 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
     while (queue_.pop(e)) {
         switch (e.type) {
             case Event::NoteOn:
-                voices_.noteOn(e.value, *currentStop_, sampleRate_);
+                // No stops pulled = silence, same as the real thing.
+                if (stopMask_ != 0) voices_.noteOn(e.value, stopMask_, sampleRate_);
                 break;
             case Event::NoteOff:
                 voices_.noteOff(e.value);
                 break;
-            case Event::SetStop:
-                if (e.value >= 0 && e.value < kStopCount) {
-                    // Applies to new notes only; held notes keep the stop
-                    // they started with. Simple, and it's what you want
-                    // musically anyway.
-                    currentStop_ = &kStops[e.value];
-                }
+            case Event::SetStopMask:
+                // Applies to new notes only; held notes keep the
+                // registration they started with. Simple, and it's what
+                // you want musically anyway.
+                stopMask_ = static_cast<uint32_t>(e.value) & ((1u << kStopCount) - 1u);
                 break;
             case Event::AllOff:
                 voices_.allOff();

@@ -35,8 +35,8 @@ Java_com_felipeftn_magnusorgue_audio_AudioEngine_noteOff(JNIEnv*, jobject, jint 
 }
 
 JNIEXPORT void JNICALL
-Java_com_felipeftn_magnusorgue_audio_AudioEngine_setStop(JNIEnv*, jobject, jint index) {
-    gEngine.pushEvent({Event::SetStop, index});
+Java_com_felipeftn_magnusorgue_audio_AudioEngine_setStopMask(JNIEnv*, jobject, jint mask) {
+    gEngine.pushEvent({Event::SetStopMask, mask});
 }
 
 JNIEXPORT void JNICALL

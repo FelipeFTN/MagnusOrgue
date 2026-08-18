@@ -1,6 +1,6 @@
 #include "VoiceManager.h"
 
-void VoiceManager::noteOn(int note, const StopDefinition& stop, float sampleRate) {
+void VoiceManager::noteOn(int note, uint32_t stopMask, float sampleRate) {
     // Same note already sounding? Just restart its attack. Happens with
     // repeated keystrokes whose release tail hasn't finished, or when the
     // touch keyboard and the MIDI keyboard hit the same note.
@@ -21,7 +21,7 @@ void VoiceManager::noteOn(int note, const StopDefinition& stop, float sampleRate
     if (target == nullptr) {
         target = findVoiceToSteal();
     }
-    target->start(note, stop, sampleRate, counter_++);
+    target->start(note, stopMask, sampleRate, counter_++);
 }
 
 Voice* VoiceManager::findVoiceToSteal() {

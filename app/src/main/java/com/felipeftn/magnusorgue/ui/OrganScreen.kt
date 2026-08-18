@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
@@ -21,9 +23,12 @@ import com.felipeftn.magnusorgue.R
 import com.felipeftn.magnusorgue.controller.OrganController
 
 /**
- * The one and only screen: top bar with the controls, keyboard filling the
- * rest. safeDrawingPadding keeps the keys out from under notches and nav
- * bars — losing the top C to a camera cutout is not a good look.
+ * The one and only screen, stops-first: a slim monitor keyboard up top
+ * (five octaves, mirrors the MIDI input) and the drawknob console filling
+ * the rest. The player's hands belong on the real keyboard — the screen is
+ * for registration.
+ *
+ * safeDrawingPadding keeps everything out from under notches and nav bars.
  */
 @Composable
 fun OrganScreen(controller: OrganController, onRetryAudio: () -> Unit) {
@@ -32,19 +37,26 @@ fun OrganScreen(controller: OrganController, onRetryAudio: () -> Unit) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
+            .padding(8.dp)
     ) {
         if (!controller.audioReady) {
             AudioErrorBanner(onRetryAudio)
         }
 
-        TopBar(controller)
-
         KeyboardView(
             controller = controller,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                .height(72.dp),
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        StopsPanel(
+            controller = controller,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
         )
     }
 }

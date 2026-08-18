@@ -17,10 +17,28 @@ void Voice::initWavetable() {
     gTableReady = true;
 }
 
-void Voice::start(int note, const StopDefinition& stop, float sampleRate, uint32_t age) {
+void Voice::start(int note, uint32_t stopMask, float sampleRate, uint32_t age) {
     note_ = note;
     age_ = age;
     sampleRate_ = sampleRate;
+
+    // Merge the recipes of every pulled stop, exactly like stacking pipe
+    // ranks. Attack follows the fastest stop (the quickest pipe defines
+    // when you hear something), release the slowest.
+    float merged[kMaxHarmonics] = {0.0f};
+    float attackMs = 1000.0f;
+    float releaseMs = 0.0f;
+    for (int s = 0; s < kStopCount; ++s) {
+        if ((stopMask & (1u << s)) == 0) continue;
+        const StopDefinition& stop = kStops[s];
+        for (int h = 0; h < kMaxHarmonics; ++h) merged[h] += stop.harmonics[h];
+        if (stop.attackMs < attackMs) attackMs = stop.attackMs;
+        if (stop.releaseMs > releaseMs) releaseMs = stop.releaseMs;
+    }
+    if (releaseMs <= 0.0f) {  // no stops pulled: a real organ goes silent too
+        active_ = false;
+        return;
+    }
 
     // Equal temperament, A4 = 440 Hz = MIDI 69.
     const float freq = 440.0f * std::exp2((note - 69) / 12.0f);
@@ -31,7 +49,7 @@ void Voice::start(int note, const StopDefinition& stop, float sampleRate, uint32
     count_ = 0;
     float ampSum = 0.0f;
     for (int h = 0; h < kMaxHarmonics; ++h) {
-        const float a = stop.harmonics[h];
+        const float a = merged[h];
         if (a <= 0.0f) continue;
         const float f = freq * static_cast<float>(h + 1);
         if (f >= sampleRate * 0.45f) break;  // higher harmonics only get worse
@@ -49,8 +67,8 @@ void Voice::start(int note, const StopDefinition& stop, float sampleRate, uint32
     gain_ = (ampSum > 0.0f) ? 0.15f / std::sqrt(ampSum) : 0.0f;
 
     // Envelope steps are per-sample deltas for a linear ramp.
-    attackStep_ = 1.0f / (stop.attackMs * 0.001f * sampleRate);
-    releaseStep_ = 1.0f / (stop.releaseMs * 0.001f * sampleRate);
+    attackStep_ = 1.0f / (attackMs * 0.001f * sampleRate);
+    releaseStep_ = 1.0f / (releaseMs * 0.001f * sampleRate);
 
     env_ = 0.0f;
     stage_ = Stage::Attack;

@@ -13,7 +13,9 @@ public:
     // before the first render.
     static void initWavetable();
 
-    void start(int note, const StopDefinition& stop, float sampleRate, uint32_t age);
+    // stopMask: bitmask over kStops. Like on a real organ, pulling several
+    // stops just stacks their pipe ranks — here, their harmonic recipes.
+    void start(int note, uint32_t stopMask, float sampleRate, uint32_t age);
     void release();              // normal note-off
     void fastRelease();          // panic: ~10 ms fade, quick but not a click
     void retrigger();            // same note struck again: restart the attack

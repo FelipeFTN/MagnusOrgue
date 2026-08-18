@@ -19,8 +19,8 @@ struct Event {
     enum Type : int32_t {
         NoteOn,
         NoteOff,
-        SetStop,   // value = index into kStops
-        AllOff,    // panic
+        SetStopMask,  // value = bitmask over kStops (bit N = stop N pulled)
+        AllOff,       // panic
     };
     Type type;
     int32_t value;
