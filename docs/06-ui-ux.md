@@ -2,70 +2,62 @@
 
 ## Design principles
 
-1. **One screen.** Everything needed to play is visible at once; settings hide behind one icon.
-2. **Big touch targets.** Keys and buttons sized for playing, not for precision tapping.
-3. **Dark by default.** Organ consoles live in dim churches; a bright white screen is hostile.
-4. **Landscape first.** More keys, better hand position.
+1. **Stops-first.** The player's hands live on the MIDI keyboard; the screen's job is registration. The console of drawknobs IS the app.
+2. **One screen.** Everything visible at once, no navigation.
+3. **Organ aesthetic.** Walnut panel, bone-colored drawknobs, brass accents, serif engravings — it should feel like a console, not a settings page.
+4. **Landscape only.** Locked via `sensorLandscape` (flippable so the OTG cable can exit on either side).
 
-## Main screen (landscape)
+## Main screen
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│ [⚙] MagnusOrgue   [Principal 8' ▾]   [◀ Oct 4 ▶]  🔊──●──   │
-│                    🎹 KORG microKEY (connected)        [PANIC] │
+│ ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ │  ← monitor keyboard
+│ ███████████████████ 5 octaves, C2–C7 ██████████████████████── │     (slim, touchable)
 ├────────────────────────────────────────────────────────────────┤
-│ ██  █ █  ██  █ █ █  ██  █ █  ██  █ █ █  ██  █ █  ██           │  ← black keys
-│ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │           │
-│ │C4│D4│E4│F4│G4│A4│B4│C5│D5│E5│F5│G5│A5│B5│C6│ │ │           │  ← white keys
-│ └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴──┴─┴─┘           │
+│ ╭──────────────────── M a g n u s O r g u e ─────────────────╮ │
+│ │                                                            │ │
+│ │   (PRINCIPAL)   (FLUTE)   (STRINGS)   (TUTTI)   (GENERAL)  │ │  ← drawknobs
+│ │      8'           8'         8'                  CANCEL    │ │
+│ │                                                            │ │
+│ │   ──────●─────────────── volume        ● KORG microKEY    │ │
+│ ╰────────────────────────────────────────────────────────────╯ │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-### Top bar elements
+### The monitor keyboard (top strip)
+
+- Five octaves (C2–C7), full compass at a fixed, slim height (~72dp).
+- Primarily a **monitor**: keys light up gold when played from the MIDI keyboard.
+- Still touchable — useful for auditioning a registration without hardware.
+- No octave shift needed: the whole range is always visible.
+
+### The drawknob console
+
+- Each stop is a **drawknob**: a round bone-colored knob with the stop name engraved in serif capitals.
+- **Pulled** state = bright face, brass ring, drop shadow ("out of the panel"). Pushed = darker, recessed.
+- Stops **combine** — pulling Principal 8' + Flute 8' stacks both recipes, exactly like ranks on a real organ.
+- **No stops pulled = silence.** That's authentic, not a bug.
+- **General Cancel** is a knob-shaped piston (red engraving): retires all stops and silences held notes. It replaced the old PANIC button and never shows a "pulled" state.
+- Nameplate ("MagnusOrgue") across the top of the panel, like a builder's plaque.
+
+### Bottom row of the console
 
 | Element | Behavior |
 |---|---|
-| ⚙ Settings | Opens settings (P1; in MVP may open a simple dialog) |
-| Stop selector | Dropdown/segmented control: Principal 8' · Flute 8' · Strings 8' · Tutti |
-| Octave shift `◀ Oct N ▶` | Shifts the visible on-screen range by octaves (does NOT transpose MIDI input) |
-| Volume slider | Master gain, with smoothing |
-| MIDI status | Gray "No MIDI device" / green + device name when connected. Tap = detail (device info, disconnect hint) |
-| PANIC | Immediately releases all notes. Prominent but not accidental (edge position) |
-
-## The keyboard component
-
-Custom Compose `Canvas` (not stock widgets — none fit):
-
-- **Layout:** white keys as equal-width rectangles; black keys overlaid at correct offsets (real organ/piano geometry: black key ≈ 60% white key width, ≈ 62% height).
-- **Visible range:** ~2 octaves landscape, ~1 octave portrait. Range = `C(octave)` to `C(octave+2)`.
-- **Multitouch:** track every pointer id → pressed key. Pointer down = noteOn, up/cancel = noteOff, move across keys = glissando (P1).
-- **Hit testing:** black keys checked first (they sit on top).
-- **Pressed state rendering:** pressed keys get an accent tint. The pressed set = union of touch-pressed and MIDI-pressed notes (from `OrganUiState.activeNotes`), so playing the external keyboard lights up the screen — great feedback and a fun "it works!" moment.
-- **Note labels** (P1): small `C4`-style labels on white keys, toggleable.
-
-## Portrait mode
-
-Supported but secondary: same layout, fewer visible keys (~1 octave). No special design work in MVP beyond "doesn't break".
-
-## Settings screen (P1)
-
-- Ignore MIDI velocity (default ON — organ behavior)
-- Note labels on keys (default OFF)
-- MIDI channel: Omni / 1–16 (default Omni)
-- Reverb on/off (default ON when implemented)
-- About (version, open source licenses)
+| Volume slider | Master gain, smoothed in the engine |
+| MIDI chip | Gray "No MIDI device" / green dot + device name |
 
 ## States & feedback
 
 | State | UI |
 |---|---|
-| No MIDI device | Neutral gray chip "No MIDI device" — never an error; on-screen keys always work |
-| MIDI connected | Green chip with device name; subtle one-time snackbar "KORG microKEY connected" |
-| MIDI disconnected (unplug) | Chip returns to gray; all its held notes released |
-| Audio engine failed to start | Full-width error banner with "Retry" — the only true error state in the app |
+| No MIDI device | Neutral gray chip — never an error; touch keys always work |
+| MIDI connected | Green dot + device name |
+| MIDI disconnected (unplug) | Chip returns to gray; held notes released |
+| Audio engine failed to start | Full-width error banner with "Retry" — the only true error state |
 
-## Visual identity (lightweight)
+## Visual identity
 
-- **Colors:** near-black background (`#121212`), warm ivory whites for keys, deep charcoal black keys, one accent (deep gold/amber — pipes, brass) for pressed keys and highlights.
-- **Icon:** stylized organ pipes forming an "M". Keep it simple; can be a placeholder in MVP.
-- **Typeface:** system default (Roboto) — no custom fonts in MVP.
+- **Palette:** near-black background (`#121212`), dark walnut console (`#241A12`), bone knobs, gold/brass accent (`#C99A3A`), ivory keys.
+- **Type:** serif (system) for engravings and the nameplate; default sans elsewhere.
+- **Icon:** the five gold pipes from the logo.

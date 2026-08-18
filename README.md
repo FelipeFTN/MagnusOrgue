@@ -6,7 +6,7 @@
 
 <p align="center">
   A MIDI virtual pipe organ for Android.<br/>
-  Plug any MIDI keyboard in through an OTG cable and play — or just use the on-screen keys.
+  Plug any MIDI keyboard in through an OTG cable and play.
 </p>
 
 <p align="center">

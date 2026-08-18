@@ -13,9 +13,9 @@
 | # | Feature | Priority | Details |
 |---|---|---|---|
 | 1.1 | Playable keyboard (white and black keys) | P0 | Multitouch (chords with several fingers) |
-| 1.2 | Configurable visible range | P0 | ~1.5 to 2 octaves in landscape; `<` `>` buttons to shift octave |
+| 1.2 | Full-compass monitor strip | P0 | Five octaves (C2–C7) at slim height; mirrors MIDI input, no octave shifting needed |
 | 1.3 | Visual feedback on pressed keys | P0 | Key "sinks"/changes color — including when triggered by external MIDI |
-| 1.4 | Landscape as default orientation | P0 | Keyboard spans the full width; portrait shows fewer keys |
+| 1.4 | Landscape-only orientation | P0 | Locked via `sensorLandscape` (flippable for the OTG cable) |
 | 1.5 | Glissando (sliding a finger across keys) | P1 | Previous note releases, new note sounds |
 | 1.6 | Optional note labels (C4, D4...) | P1 | Toggle in settings |
 | 1.7 | Adjustable key width | P2 | Zoom for larger/smaller hands |
@@ -42,18 +42,18 @@
 | 3.2 | Low latency | P0 | AAudio/Oboe in `LowLatency`/`Exclusive` mode |
 | 3.3 | 2–4 stops/timbres | P0 | E.g., Principal 8', Flute 8', Strings 8', Tutti |
 | 3.4 | Simple envelope (short attack/release) | P0 | Avoids clicks on note on/off |
-| 3.5 | Panic button (All Notes Off) | P0 | Silences everything immediately |
+| 3.5 | General Cancel piston | P0 | Retires all stops and silences everything, organ style |
 | 3.6 | Master volume control | P0 | Slider in the app + phone hardware buttons |
-| 3.7 | Simple fixed reverb | P1 | Adds "church ambience"; on/off |
-| 3.8 | Stop combination (drawbars/stops) | P2 | Stack stops like on a real organ |
+| 3.7 | Simple fixed reverb | P0 | Freeverb-style room, always on — half the organ sound |
+| 3.8 | Stop combination | P0 | Drawknobs toggle and stack like real ranks; no stops pulled = silence |
 | 3.9 | Tremulant, historical tunings, transposition | P2 | Future |
 
 ## 4. Interface and settings
 
 | # | Feature | Priority | Details |
 |---|---|---|---|
-| 4.1 | Single main screen (keyboard + top bar) | P0 | No complex navigation in the MVP |
-| 4.2 | Top bar: timbre, octave, volume, MIDI status, panic | P0 | Everything reachable in 1 tap |
+| 4.1 | Single main screen (monitor keyboard + drawknob console) | P0 | No complex navigation in the MVP |
+| 4.2 | Drawknob console: stops, General Cancel, volume, MIDI status | P0 | Everything reachable in 1 tap |
 | 4.3 | Simple settings screen | P1 | Velocity on/off, labels, MIDI channel, reverb |
 | 4.4 | Keep screen on while playing | P0 | `FLAG_KEEP_SCREEN_ON` |
 | 4.5 | Persist last settings | P1 | DataStore/SharedPreferences |
