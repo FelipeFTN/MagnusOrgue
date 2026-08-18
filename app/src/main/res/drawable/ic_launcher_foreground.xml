@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same five pipes as assets/logo.svg, redrawn for the adaptive icon safe
+     zone (center ~66 of 108dp). Rounded corners dropped — invisible at
+     launcher sizes anyway. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:scaleX="0.38"
+        android:scaleY="0.38"
+        android:translateX="4.6"
+        android:translateY="2.3">
+
+        <!-- pipes -->
+        <path android:fillColor="#C99A3A" android:pathData="M56,96h22v104h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M90,72h22v128h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M124,52h22v148h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M158,72h22v128h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M192,96h22v104h-22z" />
+
+        <!-- keybed strip at the base -->
+        <path android:fillColor="#E9E2D0" android:pathData="M46,206h164v14h-164z" />
+        <path android:fillColor="#101014" android:pathData="M66,206h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M88,206h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M120,206h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M142,206h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M164,206h7v9h-7z" />
+    </group>
+</vector>

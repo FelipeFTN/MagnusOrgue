@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MagnusOrgue</string>
+    <string name="no_midi_device">No MIDI device</string>
+    <string name="panic">PANIC</string>
+    <string name="audio_error">Audio engine failed to start.</string>
+    <string name="retry">Retry</string>
+</resources>

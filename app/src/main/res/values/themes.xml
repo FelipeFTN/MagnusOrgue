@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Just a dark shell so the window doesn't flash white before Compose
+         takes over. Real theming happens in ui/theme/Theme.kt. -->
+    <style name="Theme.MagnusOrgue" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#121212</item>
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:navigationBarColor">#121212</item>
+    </style>
+</resources>

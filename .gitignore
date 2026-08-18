@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+.kotlin/
+
+# Local machine config (SDK path etc.) — never commit this
+local.properties
+
+# Build outputs
+*.apk
+*.aab
+
+# Signing
+*.keystore
+*.jks
+
+# Misc
+.DS_Store
+.claude/
