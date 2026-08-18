@@ -11,7 +11,9 @@
 // with 8 GB these days.
 
 struct Pipe {
-    float rootNote;       // MIDI note incl. tuning fraction (e.g. 57.284)
+    // The keyboard key (MIDI number) this pipe belongs to — NOT its true
+    // pitch. A 16' pipe keyed at 48 sounds an octave lower; that's its job.
+    float keyNote;
     uint32_t loopStart;   // frames
     uint32_t loopEnd;
     uint32_t frameCount;
@@ -28,7 +30,9 @@ public:
     float sampleRate() const { return sampleRate_; }
     float gain() const { return gain_; }
 
-    // Closest pipe by root note; the voice pitch-shifts the remainder.
+    // Closest pipe by keyboard key; the voice pitch-shifts the remainder.
+    // Returns null when the played key is too far outside the rank's
+    // compass (e.g. the celeste has no bass, pedal ranks have no treble).
     const Pipe* nearestPipe(float note) const;
 
 private:

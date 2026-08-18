@@ -13,18 +13,26 @@ author and license. Run this locally against your own copy:
 .mrk format (little-endian), consumed by cpp/Rank.cpp:
 
     char[4]  magic "MORK"
-    u32      version (1)
+    u32      version (2)
     u32      sampleRate
     u32      pipeCount
     f32      gain            # per-rank trim, 1.0 = as recorded
     pipeCount * {
-        i32  rootNoteMilli   # MIDI note * 1000, tuning fraction included
+        i32  keyNoteMilli    # keyboard key (MIDI) * 1000 this pipe belongs to
         u32  loopStart       # frames
         u32  loopEnd         # frames
         u32  frameCount
         u32  dataOffset      # bytes into the PCM blob
     }
     i16[]    PCM blob, all pipes concatenated
+
+Version 2 note: pipes are keyed by KEYBOARD POSITION (the filename number),
+not by the smpl chunk's true pitch. v1 corrected everything to the smpl
+pitch, which quietly un-detuned the Voce Umana celeste and transposed the
+16' pedal ranks up an octave (a 16' pipe's true pitch is an octave below
+its key — that's the whole point of a 16'). Mapping by key and shifting
+chromatically preserves footage, the organ's real temperament, and every
+pipe's tuning quirks. Lesson learned the fun way.
 """
 
 import glob
@@ -37,10 +45,19 @@ import numpy as np
 # Which ranks to import and what to call them. Order matches kStops in
 # cpp/Stops.h and STOPS in StopsPanel.kt.
 RANKS = [
+    # Manuale (Grand'Organo + Positivo)
     ("GO Principale 8",      "principale8.mrk"),
+    ("GO Voce umana 8",      "voceumana8.mrk"),
     ("GO Flauto a camino 8", "flauto8.mrk"),
     ("GO Viola da Gamba 8",  "gamba8.mrk"),
     ("GO Ottava 4",          "ottava4.mrk"),
+    ("GO Flauto conico 4",   "flautoconico4.mrk"),
+    ("GO Quintadecima 2",    "quintadecima2.mrk"),
+    ("PT Regale 8",          "regale8.mrk"),
+    # Pedale
+    ("P Subbasso 16",        "subbasso16.mrk"),
+    ("P Flauto 8",           "pflauto8.mrk"),
+    ("P Contro Fagotto 16",  "controfagotto16.mrk"),
 ]
 
 # Keep one pipe every N semitones; the engine pitch-shifts to the nearest
@@ -52,7 +69,7 @@ OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "a
 
 
 def parse_wav(path):
-    """Returns (sample_rate, mono_int16, root_note_milli, loop_start, loop_end).
+    """Returns (sample_rate, mono_int16, loop_start, loop_end).
 
     Hand-rolled RIFF walk because the stdlib `wave` module refuses 24-bit
     files and knows nothing about the smpl chunk anyway.
@@ -62,7 +79,7 @@ def parse_wav(path):
 
     sr = channels = bits = None
     pcm = None
-    root_milli = loop_start = loop_end = None
+    loop_start = loop_end = None
 
     pos = 12
     while pos + 8 <= len(data):
@@ -77,9 +94,6 @@ def parse_wav(path):
             pcm = body
         elif cid == b"smpl":
             # https://www.recordingblogs.com/wiki/sample-chunk-of-a-wave-file
-            unity_note = struct.unpack("<I", body[12:16])[0]
-            fraction = struct.unpack("<I", body[16:20])[0]  # 1/2^32 of a semitone
-            root_milli = unity_note * 1000 + round(fraction / 2**32 * 1000)
             if struct.unpack("<I", body[28:32])[0] >= 1:
                 loop_start = struct.unpack("<I", body[44:48])[0]
                 loop_end = struct.unpack("<I", body[48:52])[0]
@@ -100,7 +114,7 @@ def parse_wav(path):
     mono = samples.mean(axis=1)
     mono16 = np.clip(np.round(mono / 256.0), -32768, 32767).astype(np.int16)
 
-    return sr, mono16, root_milli, loop_start, loop_end
+    return sr, mono16, loop_start, loop_end
 
 
 def build_rank(rank_dir, out_path):
@@ -113,22 +127,27 @@ def build_rank(rank_dir, out_path):
     sample_rate = None
 
     for path in kept:
-        sr, mono, root_milli, loop_start, loop_end = parse_wav(path)
+        sr, mono, loop_start, loop_end = parse_wav(path)
         sample_rate = sample_rate or sr
         assert sr == sample_rate, f"mixed sample rates in {rank_dir}"
+
+        # The keyboard key this pipe belongs to comes from the filename
+        # ("055-g.wav" -> 55). See the v2 note in the module docstring for
+        # why we deliberately ignore the smpl chunk's pitch here.
+        key = int(os.path.basename(path).split("-")[0])
 
         # Everything after the loop is never played; drop it. +2 frames of
         # slack so linear interpolation can read pos+1 at the loop edge.
         frames = min(len(mono), loop_end + 2)
         mono = mono[:frames]
 
-        headers.append(struct.pack("<iIIII", root_milli, loop_start, loop_end, frames, offset))
+        headers.append(struct.pack("<iIIII", key * 1000, loop_start, loop_end, frames, offset))
         blobs.append(mono.tobytes())
         offset += len(blobs[-1])
 
     with open(out_path, "wb") as out:
         out.write(b"MORK")
-        out.write(struct.pack("<III", 1, sample_rate, len(headers)))
+        out.write(struct.pack("<III", 2, sample_rate, len(headers)))
         out.write(struct.pack("<f", 1.0))
         out.write(b"".join(headers))
         out.write(b"".join(blobs))

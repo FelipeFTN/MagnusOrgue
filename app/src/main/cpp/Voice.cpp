@@ -29,11 +29,13 @@ void Voice::start(int note, uint32_t stopMask, const Rank* ranks,
         l.pipe = pipe;
         l.gain = ranks[s].gain() * kLayerScale;
         l.pos = 0.0;
-        // Two pitch corrections in one increment: the distance from the
-        // pipe's own root note (the importer keeps one pipe per minor
-        // third, so this is at most ±1 semitone), and the sample-rate vs
-        // device-rate ratio.
-        l.inc = std::exp2((static_cast<float>(note) - pipe->rootNote) / 12.0f)
+        // Two corrections in one increment: the chromatic distance from the
+        // pipe's own key (±1 semitone at most, thanks to the minor-third
+        // pipe spacing), and the sample-rate vs device-rate ratio. No
+        // tuning correction on purpose — the organ's real temperament,
+        // the celeste detune and the 16'/4'/2' footages all live in the
+        // key→recording relationship.
+        l.inc = std::exp2((static_cast<float>(note) - pipe->keyNote) / 12.0f)
                 * (ranks[s].sampleRate() / outputRate);
     }
 

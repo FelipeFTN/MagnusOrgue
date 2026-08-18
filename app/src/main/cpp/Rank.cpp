@@ -26,7 +26,9 @@ float readF32(const uint8_t* p) {
 bool Rank::load(const uint8_t* bytes, size_t size) {
     // Header: "MORK", version, sampleRate, pipeCount, gain. 20 bytes.
     if (size < 20 || std::memcmp(bytes, "MORK", 4) != 0) return false;
-    if (readU32(bytes + 4) != 1) return false;  // unknown version
+    // v2 keys pipes by keyboard position instead of true pitch; v1 packs
+    // would sound wrong (un-detuned celeste, transposed 16'), so refuse.
+    if (readU32(bytes + 4) != 2) return false;
     sampleRate_ = static_cast<float>(readU32(bytes + 8));
     const uint32_t pipeCount = readU32(bytes + 12);
     gain_ = readF32(bytes + 16);
@@ -46,7 +48,7 @@ bool Rank::load(const uint8_t* bytes, size_t size) {
     for (uint32_t i = 0; i < pipeCount; ++i) {
         const uint8_t* row = table + i * 20;
         Pipe p;
-        p.rootNote = static_cast<float>(readI32(row)) / 1000.0f;
+        p.keyNote = static_cast<float>(readI32(row)) / 1000.0f;
         p.loopStart = readU32(row + 4);
         p.loopEnd = readU32(row + 8);
         p.frameCount = readU32(row + 12);
@@ -68,13 +70,18 @@ bool Rank::load(const uint8_t* bytes, size_t size) {
 const Pipe* Rank::nearestPipe(float note) const {
     if (pipes_.empty()) return nullptr;
     const Pipe* best = &pipes_[0];
-    float bestDist = std::fabs(pipes_[0].rootNote - note);
+    float bestDist = std::fabs(pipes_[0].keyNote - note);
     for (const Pipe& p : pipes_) {
-        const float d = std::fabs(p.rootNote - note);
+        const float d = std::fabs(p.keyNote - note);
         if (d < bestDist) {
             bestDist = d;
             best = &p;
         }
     }
-    return best;
+    // The importer keeps one pipe per minor third, so anything farther
+    // than ~2 semitones means the key is outside this rank's compass.
+    // Ranks simply don't speak there — the Voce Umana has no bass octave,
+    // the pedal ranks stop at F4, and stretching a pipe several semitones
+    // sounds like a tape machine dying anyway.
+    return (bestDist > 2.01f) ? nullptr : best;
 }
