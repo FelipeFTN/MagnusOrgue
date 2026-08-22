@@ -19,6 +19,13 @@
 
 ---
 
+<p align="center">
+  <img src="assets/screenshot_home.jpeg" alt="The drawknob console" width="80%"/>
+</p>
+<p align="center">
+  <img src="assets/screenshot_menu.jpeg" alt="The side drawer: guide, reverb and transpose controls" width="80%"/>
+</p>
+
 ## About
 
 MagnusOrgue turns an Android phone into a small, no-fuss virtual organ. There's no DAW, no patch editor, no cloud account — you open the app, you hear an organ. If you own a "mute" MIDI controller, connect it with a USB OTG cable and it just works, no configuration required.
