@@ -80,16 +80,22 @@ private suspend fun PointerInputScope.trackTouches(
                 val event = awaitPointerEvent()
                 for (change in event.changes) {
                     val id = change.id
-                    if (change.pressed && id !in held) {
+                    if (change.pressed) {
                         val note = noteAt(change.position.x, change.position.y, size, lowNote, whiteKeys)
-                        held[id] = note
-                        controller.noteOn(note)
-                    } else if (!change.pressed && id in held) {
+                        val previous = held[id]
+                        if (previous == null) {
+                            held[id] = note
+                            controller.noteOn(note)
+                        } else if (previous != note) {
+                            // Glissando: the finger slid onto another key.
+                            controller.noteOff(previous)
+                            held[id] = note
+                            controller.noteOn(note)
+                        }
+                        change.consume()
+                    } else if (id in held) {
                         controller.noteOff(held.remove(id)!!)
                     }
-                    // TODO glissando: if a held pointer slides onto another
-                    // key, release the old note and trigger the new one.
-                    if (change.pressed) change.consume()
                 }
             }
         }
