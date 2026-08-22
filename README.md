@@ -92,12 +92,6 @@ adb logcat -s MagnusOrgue       # tail the app logs
 
 Tip: pair the phone over **Wi-Fi adb** (Developer options → Wireless debugging), because the USB port will be occupied by the OTG cable and the MIDI keyboard.
 
-## Roadmap at a glance
-
-`skeleton → audio engine → on-screen keyboard → MIDI over OTG → organ voicing → polish`
-
-Details and acceptance criteria per phase in [07-roadmap.md](docs/07-roadmap.md).
-
 ## License
 
 MagnusOrgue is free software, released under the [GNU General Public License v3.0](LICENSE). You can redistribute it and/or modify it under the terms of the GPL as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
