@@ -1,5 +1,6 @@
 package com.felipeftn.magnusorgue.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -186,15 +188,32 @@ fun StopsPanel(
                 )
                 // Combination pistons, like the thumb buttons under a real
                 // manual: tap = recall, long-press = store.
+                val context = LocalContext.current
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     controller.pistons.forEachIndexed { i, mask ->
                         Piston(
                             number = i + 1,
                             stored = mask >= 0,
                             onTap = { controller.pressPiston(i) },
-                            onHold = { controller.storePiston(i) },
+                            onHold = {
+                                controller.storePiston(i)
+                                // Long-press has no visual of its own when
+                                // overwriting an already-lit piston.
+                                Toast.makeText(context, "Piston ${i + 1} stored", Toast.LENGTH_SHORT).show()
+                            },
                         )
                     }
+                }
+                // Easy to forget transpose is on and think the organ went
+                // flat — keep it visible whenever it's non-zero.
+                if (controller.transpose != 0) {
+                    val t = controller.transpose
+                    Text(
+                        text = if (t > 0) "+$t" else "$t",
+                        color = Gold,
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 12.sp,
+                    )
                 }
                 MidiChip(controller.midiDeviceName)
             }
