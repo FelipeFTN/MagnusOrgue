@@ -64,7 +64,7 @@ private val MANUAL_STOPS = listOf(
     StopSpec("Flauto", "8'"),
     StopSpec("Gamba", "8'"),
     StopSpec("Ottava", "4'"),
-    StopSpec("Fl. Conico", "4'"),
+    StopSpec("Flauto Conico", "4'"),
     StopSpec("XV", "2'"),  // Quintadecima — "XV" is how consoles engrave it
     StopSpec("Regale", "8'", reed = true),
 )
@@ -272,6 +272,8 @@ private fun StopKnob(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Long names ("Voce Umana", "Flauto Conico") wrap onto a second
+            // line instead of spilling over the knob's edge.
             Text(
                 text = spec.title.uppercase(),
                 color = engraving,
@@ -279,7 +281,9 @@ private fun StopKnob(
                 fontWeight = FontWeight.Bold,
                 fontSize = 8.sp,
                 letterSpacing = 0.5.sp,
-                maxLines = 1,
+                textAlign = TextAlign.Center,
+                lineHeight = 9.sp,
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             if (spec.subtitle.isNotEmpty()) {
                 Text(
