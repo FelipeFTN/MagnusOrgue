@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.felipeftn.magnusorgue.audio.AudioEngine
+import com.felipeftn.magnusorgue.settings.ConsoleState
 
 /**
  * The single funnel for note events. Touch and MIDI both land here, and the
@@ -47,6 +48,27 @@ class OrganController {
     /** False when the audio stream refused to open — shows the error banner. */
     var audioReady by mutableStateOf(true)
 
+    /** Combination pistons: the saved stop-mask of each, -1 = empty. */
+    var pistons by mutableStateOf(List(PISTON_COUNT) { -1 })
+        private set
+
+    // Set once from MainActivity; null in previews/tests.
+    private var persisted: ConsoleState? = null
+
+    /** Restores the last session's console and wires up persistence. */
+    fun attachPersistence(state: ConsoleState) {
+        persisted = state
+        activeStops = maskToSet(state.stopMask)
+        tremulant = state.tremulant
+        subOctaveCoupler = state.subOctaveCoupler
+        volume = state.volume
+        pistons = List(PISTON_COUNT) { state.piston(it) }
+        // Push the restored console into the engine.
+        pushStopMask()
+        AudioEngine.setTremulant(tremulant)
+        AudioEngine.setVolume(volume)
+    }
+
     // Events arrive concurrently from the UI thread and the MIDI callback
     // thread; one lock keeps the maps and the snapshot writes consistent.
     // The audio thread never comes near this — it's app-side bookkeeping.
@@ -57,6 +79,11 @@ class OrganController {
 
     private val presses = HashMap<Int, Press>()
     private val engineRefs = HashMap<Int, Int>()
+
+    // Sustain pedal (MIDI CC 64): while down, released keys go here instead
+    // of actually releasing; pedal-up flushes them. Guarded by `lock`.
+    private var sustainDown = false
+    private val sustained = mutableListOf<Press>()
 
     fun noteOn(note: Int) {
         if (note !in 0..127) return
@@ -85,14 +112,38 @@ class OrganController {
             val press = presses[note] ?: return
             if (--press.count > 0) return
             presses.remove(note)
-            for (t in press.targets) {
-                val refs = engineRefs.merge(t, -1, Int::plus) ?: continue
-                if (refs <= 0) {
-                    engineRefs.remove(t)
-                    AudioEngine.noteOff(t)
-                }
+            if (sustainDown) {
+                // Key up, pedal down: the pipes keep speaking until the
+                // pedal lifts. (Purists: yes, tracker organs have no
+                // sustain pedal. MIDI keyboards do, and it's handy.)
+                sustained += press
+                return
             }
+            releaseTargets(press)
             activeNotes = engineRefs.keys.toSet()
+        }
+    }
+
+    /** MIDI CC 64. Values >= 64 mean pedal down, per the MIDI spec. */
+    fun sustain(down: Boolean) {
+        synchronized(lock) {
+            sustainDown = down
+            if (!down) {
+                sustained.forEach(::releaseTargets)
+                sustained.clear()
+                activeNotes = engineRefs.keys.toSet()
+            }
+        }
+    }
+
+    // Must be called with `lock` held.
+    private fun releaseTargets(press: Press) {
+        for (t in press.targets) {
+            val refs = engineRefs.merge(t, -1, Int::plus) ?: continue
+            if (refs <= 0) {
+                engineRefs.remove(t)
+                AudioEngine.noteOff(t)
+            }
         }
     }
 
@@ -101,6 +152,7 @@ class OrganController {
         synchronized(lock) {
             presses.clear()
             engineRefs.clear()
+            sustained.clear()
             activeNotes = emptySet()
         }
         AudioEngine.allNotesOff()
@@ -115,11 +167,31 @@ class OrganController {
     fun toggleTremulant() {
         tremulant = !tremulant
         AudioEngine.setTremulant(tremulant)
+        persisted?.tremulant = tremulant
     }
 
     fun toggleSubOctaveCoupler() {
         // Takes effect on the next press; held notes keep their targets.
         subOctaveCoupler = !subOctaveCoupler
+        persisted?.subOctaveCoupler = subOctaveCoupler
+    }
+
+    /**
+     * Combination piston, console rules: short press applies the stored
+     * registration, long press captures the current one. Applying replaces
+     * the whole registration (a "general" piston, not additive).
+     */
+    fun pressPiston(index: Int) {
+        val mask = pistons.getOrNull(index) ?: return
+        if (mask < 0) return  // empty piston: nothing to apply
+        activeStops = maskToSet(mask)
+        pushStopMask()
+    }
+
+    fun storePiston(index: Int) {
+        val mask = setToMask(activeStops)
+        pistons = pistons.toMutableList().also { it[index] = mask }
+        persisted?.setPiston(index, mask)
     }
 
     /**
@@ -135,7 +207,9 @@ class OrganController {
     }
 
     private fun pushStopMask() {
-        AudioEngine.setStopMask(activeStops.fold(0) { mask, i -> mask or (1 shl i) })
+        val mask = setToMask(activeStops)
+        AudioEngine.setStopMask(mask)
+        persisted?.stopMask = mask
     }
 
     // Not setVolume(): the `volume` property's generated setter already
@@ -143,5 +217,14 @@ class OrganController {
     fun changeVolume(value: Float) {
         volume = value
         AudioEngine.setVolume(value)
+        persisted?.volume = value
+    }
+
+    private fun setToMask(stops: Set<Int>) = stops.fold(0) { mask, i -> mask or (1 shl i) }
+
+    private fun maskToSet(mask: Int) = (0 until 32).filter { mask and (1 shl it) != 0 }.toSet()
+
+    companion object {
+        const val PISTON_COUNT = 4
     }
 }

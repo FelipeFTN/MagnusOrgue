@@ -32,6 +32,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true  // version name in the About drawer
         // Prefab unpacks Oboe's headers + .so straight from the AAR,
         // so CMake can just find_package() it. No git submodule nonsense.
         prefab = true
@@ -68,6 +69,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.core:core-ktx:1.15.0")
 
     // Low-latency audio. https://github.com/google/oboe
     implementation("com.google.oboe:oboe:1.9.3")
