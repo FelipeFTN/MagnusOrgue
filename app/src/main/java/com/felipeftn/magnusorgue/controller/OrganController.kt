@@ -3,7 +3,8 @@ package com.felipeftn.magnusorgue.controller
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.felipeftn.magnusorgue.audio.AudioEngine
+import com.felipeftn.magnusorgue.audio.EngineSink
+import com.felipeftn.magnusorgue.audio.NoteSink
 import com.felipeftn.magnusorgue.settings.ConsoleState
 
 /**
@@ -21,7 +22,7 @@ import com.felipeftn.magnusorgue.settings.ConsoleState
  *
  * All public fields are Compose snapshot state so the UI redraws itself.
  */
-class OrganController {
+class OrganController(private val engine: NoteSink = EngineSink) {
 
     /** Engine notes currently sounding, from any input. Drives key highlighting. */
     var activeNotes by mutableStateOf(emptySet<Int>())
@@ -37,6 +38,10 @@ class OrganController {
 
     /** Ottava Bassa: each key also plays its lower octave. */
     var subOctaveCoupler by mutableStateOf(false)
+        private set
+
+    /** Transposition in semitones (-6..+6). Applied to every input. */
+    var transpose by mutableStateOf(0)
         private set
 
     var volume by mutableStateOf(0.8f)
@@ -61,12 +66,13 @@ class OrganController {
         activeStops = maskToSet(state.stopMask)
         tremulant = state.tremulant
         subOctaveCoupler = state.subOctaveCoupler
+        transpose = state.transpose
         volume = state.volume
         pistons = List(PISTON_COUNT) { state.piston(it) }
         // Push the restored console into the engine.
         pushStopMask()
-        AudioEngine.setTremulant(tremulant)
-        AudioEngine.setVolume(volume)
+        engine.setTremulant(tremulant)
+        engine.setVolume(volume)
     }
 
     // Events arrive concurrently from the UI thread and the MIDI callback
@@ -94,14 +100,17 @@ class OrganController {
                 existing.count++
                 return
             }
-            // Coupler targets are decided at press time and remembered, so a
-            // later coupler toggle only affects new presses.
-            val targets = if (subOctaveCoupler && note >= 12) listOf(note, note - 12)
-                          else listOf(note)
+            // Transpose and coupler targets are decided at press time and
+            // remembered, so changing either mid-chord only affects new
+            // presses — held keys still release exactly what they started.
+            val base = note + transpose
+            if (base !in 0..127) return
+            val targets = if (subOctaveCoupler && base >= 12) listOf(base, base - 12)
+                          else listOf(base)
             presses[note] = Press(1, targets)
             for (t in targets) {
                 val refs = engineRefs.merge(t, 1, Int::plus)!!
-                if (refs == 1) AudioEngine.noteOn(t)
+                if (refs == 1) engine.noteOn(t)
             }
             activeNotes = engineRefs.keys.toSet()
         }
@@ -142,7 +151,7 @@ class OrganController {
             val refs = engineRefs.merge(t, -1, Int::plus) ?: continue
             if (refs <= 0) {
                 engineRefs.remove(t)
-                AudioEngine.noteOff(t)
+                engine.noteOff(t)
             }
         }
     }
@@ -155,7 +164,7 @@ class OrganController {
             sustained.clear()
             activeNotes = emptySet()
         }
-        AudioEngine.allNotesOff()
+        engine.allNotesOff()
     }
 
     /** Pull or retire one stop. Stops combine, like ranks on a real organ. */
@@ -166,7 +175,7 @@ class OrganController {
 
     fun toggleTremulant() {
         tremulant = !tremulant
-        AudioEngine.setTremulant(tremulant)
+        engine.setTremulant(tremulant)
         persisted?.tremulant = tremulant
     }
 
@@ -174,6 +183,12 @@ class OrganController {
         // Takes effect on the next press; held notes keep their targets.
         subOctaveCoupler = !subOctaveCoupler
         persisted?.subOctaveCoupler = subOctaveCoupler
+    }
+
+    /** Shift the whole organ by semitones, clamped to a fourth either way. */
+    fun changeTranspose(delta: Int) {
+        transpose = (transpose + delta).coerceIn(-6, 6)
+        persisted?.transpose = transpose
     }
 
     /**
@@ -203,12 +218,14 @@ class OrganController {
         pushStopMask()
         if (tremulant) toggleTremulant()
         subOctaveCoupler = false
+        persisted?.subOctaveCoupler = false
+        if (transpose != 0) changeTranspose(-transpose)
         panic()
     }
 
     private fun pushStopMask() {
         val mask = setToMask(activeStops)
-        AudioEngine.setStopMask(mask)
+        engine.setStopMask(mask)
         persisted?.stopMask = mask
     }
 
@@ -216,7 +233,7 @@ class OrganController {
     // claims that JVM signature and Kotlin refuses the clash.
     fun changeVolume(value: Float) {
         volume = value
-        AudioEngine.setVolume(value)
+        engine.setVolume(value)
         persisted?.volume = value
     }
 
