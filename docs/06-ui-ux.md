@@ -50,7 +50,17 @@
 | Element | Behavior |
 |---|---|
 | Volume slider | Master gain, smoothed in the engine |
+| Pistons 1–4 | Combination pistons: tap = recall, long-press = store (gold ring + dot when set) |
+| Transpose badge | Appears only when transpose ≠ 0 (+2 / -3), so nobody thinks the organ went flat |
 | MIDI chip | Gray "No MIDI device" / green dot + device name |
+
+### The side drawer (☰ on the nameplate row)
+
+Everything that isn't playing: a quick how-to (OTG, stops, pistons),
+the transpose control, links to sample-set sources (piotrgrabowski.pl,
+GrandOrgue) and the GitHub repo/issues, and credits (Giubiasco / Piotr
+Grabowski, Oboe, GPLv3). Opens only from the ☰ — edge swipes would fight
+the keyboard's lowest keys.
 
 ## States & feedback
 
