@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import com.felipeftn.magnusorgue.audio.AudioEngine
 import com.felipeftn.magnusorgue.controller.OrganController
 import com.felipeftn.magnusorgue.midi.MidiInputManager
+import com.felipeftn.magnusorgue.settings.ConsoleState
 import com.felipeftn.magnusorgue.ui.OrganScreen
 import com.felipeftn.magnusorgue.ui.theme.MagnusOrgueTheme
 
@@ -31,6 +32,9 @@ class MainActivity : ComponentActivity() {
         // phone; blocking onCreate keeps the "first note works" guarantee.
         // TODO: load async behind a splash if it ever feels sluggish.
         AudioEngine.loadRanks(assets)
+
+        // Restore last session's registration, pistons and volume.
+        controller.attachPersistence(ConsoleState(this))
 
         midi = MidiInputManager(this, controller).also { it.start() }
 

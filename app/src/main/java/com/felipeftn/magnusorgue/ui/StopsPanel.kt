@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,7 +82,11 @@ private val CancelEngraving = Color(0xFF7A1F1F)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
+fun StopsPanel(
+    controller: OrganController,
+    onOpenDrawer: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
@@ -91,16 +97,31 @@ fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
             Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Nameplate, like the builder's plaque above a real console.
-            Text(
-                text = "MagnusOrgue",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = Gold,
-                fontFamily = FontFamily.Serif,
-                fontSize = 12.sp,
-                letterSpacing = 4.sp,
-            )
+            // Nameplate row: menu on the left, builder's plaque centered.
+            Box(Modifier.fillMaxWidth()) {
+                Text(
+                    text = "☰",
+                    color = Gold.copy(alpha = 0.7f),
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 4.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onOpenDrawer,
+                        ),
+                )
+                Text(
+                    text = "MagnusOrgue",
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                    color = Gold,
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 12.sp,
+                    letterSpacing = 4.sp,
+                )
+            }
 
             DivisionLabel("Manuale")
             FlowRow(
@@ -156,13 +177,25 @@ fun StopsPanel(controller: OrganController, modifier: Modifier = Modifier) {
             Row(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Slider(
                     value = controller.volume,
                     onValueChange = controller::changeVolume,
-                    modifier = Modifier.weight(1f).widthIn(max = 260.dp),
+                    modifier = Modifier.weight(1f).widthIn(max = 220.dp),
                 )
+                // Combination pistons, like the thumb buttons under a real
+                // manual: tap = recall, long-press = store.
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    controller.pistons.forEachIndexed { i, mask ->
+                        Piston(
+                            number = i + 1,
+                            stored = mask >= 0,
+                            onTap = { controller.pressPiston(i) },
+                            onHold = { controller.storePiston(i) },
+                        )
+                    }
+                }
                 MidiChip(controller.midiDeviceName)
             }
         }
@@ -239,6 +272,43 @@ private fun StopKnob(
                 )
             }
         }
+    }
+}
+
+/**
+ * A thumb piston: small round brass button. Filled dot = has a stored
+ * combination. Tap recalls, long-press stores the current registration —
+ * same muscle memory as the real console.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Piston(number: Int, stored: Boolean, onTap: () -> Unit, onHold: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(34.dp)
+            .clip(CircleShape)
+            .background(
+                Brush.radialGradient(
+                    0f to Color(0xFF4A3B26),
+                    0.8f to Color(0xFF2E2416),
+                    1f to Color(0xFF14100B),
+                )
+            )
+            .border(1.dp, if (stored) Gold.copy(alpha = 0.7f) else Color(0xFF4A3B26), CircleShape)
+            .combinedClickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onTap,
+                onLongClick = onHold,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = number.toString(),
+            color = if (stored) Gold else Gold.copy(alpha = 0.35f),
+            fontFamily = FontFamily.Serif,
+            fontSize = 12.sp,
+        )
     }
 }
 
