@@ -18,9 +18,10 @@ public:
     // the audio callback.
     void prepare(float sampleRate);
 
-    // Mixes the wet signal into buf. Safe on the audio thread (no
+    // Mixes the wet signal into buf. `amount` 0..1 sets how much cathedral
+    // (0 = dry, 1 = the full nave). Safe on the audio thread (no
     // allocation, just ring-buffer reads/writes).
-    void process(float* buf, int frames);
+    void process(float* buf, int frames, float amount);
 
 private:
     struct Comb {
@@ -56,5 +57,6 @@ private:
 
     Comb combs_[8];
     Allpass allpasses_[4];
+    float smoothedWet_ = 0.0f;
     bool ready_ = false;
 };

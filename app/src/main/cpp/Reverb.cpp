@@ -10,13 +10,7 @@ constexpr float kAllpassMs[4] = {12.6f, 10.0f, 7.7f, 5.1f};
 // First reflection off a far wall: ~7 m there and back.
 constexpr float kPreDelayMs = 22.0f;
 
-// RT60 with these numbers lands around 4 s — release a chord and it hangs
-// in the air the way a real cathedral answers back. Push feedback past
-// ~0.93 and the tail starts to feel like it never leaves; don't.
-constexpr float kFeedback = 0.90f;
 constexpr float kDamp = 0.28f;  // treble absorption in the tail
-constexpr float kWet = 0.34f;   // the samples carry some room of their own,
-                                // but a cathedral should be unmistakable
 }  // namespace
 
 void Reverb::prepare(float sampleRate) {
@@ -34,8 +28,18 @@ void Reverb::prepare(float sampleRate) {
     ready_ = true;
 }
 
-void Reverb::process(float* buf, int frames) {
+void Reverb::process(float* buf, int frames, float amount) {
     if (!ready_) return;
+
+    // One knob, two parameters. `amount` 0..1 scales both the tail length
+    // (comb feedback) and the wet blend, so one slider walks from "dry
+    // chapel" to "full cathedral" without ever hitting a silly spot.
+    // Feedback tops out at 0.92 — past ~0.93 the tail never leaves.
+    if (amount < 0.0f) amount = 0.0f;
+    if (amount > 1.0f) amount = 1.0f;
+    const float feedback = 0.74f + 0.18f * amount;
+    const float targetWet = 0.45f * amount;
+
     for (int i = 0; i < frames; ++i) {
         const float dry = buf[i];
 
@@ -46,7 +50,7 @@ void Reverb::process(float* buf, int frames) {
 
         float wet = 0.0f;
         for (Comb& c : combs_) {
-            wet += c.tick(fed, kFeedback, kDamp);
+            wet += c.tick(fed, feedback, kDamp);
         }
         wet *= 0.125f;  // average of the eight combs
 
@@ -54,6 +58,8 @@ void Reverb::process(float* buf, int frames) {
             wet = a.tick(wet);
         }
 
-        buf[i] = dry + wet * kWet;
+        // Smooth the wet gain so slider moves don't zipper.
+        smoothedWet_ += (targetWet - smoothedWet_) * 0.002f;
+        buf[i] = dry + wet * smoothedWet_;
     }
 }

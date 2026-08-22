@@ -40,6 +40,9 @@ object AudioEngine {
     /** Tremulant on/off — a gentle wind wobble on the whole organ. */
     external fun setTremulant(on: Boolean)
 
+    /** Reverb amount, 0.0 (dry) .. 1.0 (full cathedral). Smoothed natively. */
+    external fun setReverb(amount: Float)
+
     /** Master gain, 0.0..1.0. Smoothed on the native side. */
     external fun setVolume(gain: Float)
 

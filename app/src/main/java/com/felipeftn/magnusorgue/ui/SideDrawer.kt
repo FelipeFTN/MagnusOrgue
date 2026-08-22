@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -79,6 +80,14 @@ fun SideDrawer(controller: OrganController) {
                 "Pistons 1–4 under the stops are combination pistons: " +
                 "long-press to store the current registration, tap to recall it."
             )
+
+            SectionTitle("Reverb")
+            Slider(
+                value = controller.reverb,
+                onValueChange = controller::changeReverb,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Body("From a dry chapel to the full cathedral. The tail grows with it.")
 
             SectionTitle("Transpose")
             Row(

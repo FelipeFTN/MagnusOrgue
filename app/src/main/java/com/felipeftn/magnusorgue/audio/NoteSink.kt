@@ -13,6 +13,7 @@ interface NoteSink {
     fun setStopMask(mask: Int)
     fun setTremulant(on: Boolean)
     fun setVolume(gain: Float)
+    fun setReverb(amount: Float)
 }
 
 /** The production sink: straight delegation to the native engine. */
@@ -23,4 +24,5 @@ object EngineSink : NoteSink {
     override fun setStopMask(mask: Int) = AudioEngine.setStopMask(mask)
     override fun setTremulant(on: Boolean) = AudioEngine.setTremulant(on)
     override fun setVolume(gain: Float) = AudioEngine.setVolume(gain)
+    override fun setReverb(amount: Float) = AudioEngine.setReverb(amount)
 }

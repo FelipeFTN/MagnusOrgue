@@ -73,6 +73,13 @@ Java_com_felipeftn_magnusorgue_audio_AudioEngine_setTremulant(JNIEnv*, jobject, 
 }
 
 JNIEXPORT void JNICALL
+Java_com_felipeftn_magnusorgue_audio_AudioEngine_setReverb(JNIEnv*, jobject, jfloat amount) {
+    if (amount < 0.0f) amount = 0.0f;
+    if (amount > 1.0f) amount = 1.0f;
+    gEngine.setReverb(amount);
+}
+
+JNIEXPORT void JNICALL
 Java_com_felipeftn_magnusorgue_audio_AudioEngine_setVolume(JNIEnv*, jobject, jfloat gain) {
     if (gain < 0.0f) gain = 0.0f;
     if (gain > 1.0f) gain = 1.0f;

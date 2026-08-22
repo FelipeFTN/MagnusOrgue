@@ -47,6 +47,10 @@ class OrganController(private val engine: NoteSink = EngineSink) {
     var volume by mutableStateOf(0.8f)
         private set
 
+    /** Reverb amount 0..1 — how much cathedral the room answers with. */
+    var reverb by mutableStateOf(0.6f)
+        private set
+
     /** Product name of the connected MIDI device, or null. */
     var midiDeviceName by mutableStateOf<String?>(null)
 
@@ -68,11 +72,13 @@ class OrganController(private val engine: NoteSink = EngineSink) {
         subOctaveCoupler = state.subOctaveCoupler
         transpose = state.transpose
         volume = state.volume
+        reverb = state.reverb
         pistons = List(PISTON_COUNT) { state.piston(it) }
         // Push the restored console into the engine.
         pushStopMask()
         engine.setTremulant(tremulant)
         engine.setVolume(volume)
+        engine.setReverb(reverb)
     }
 
     // Events arrive concurrently from the UI thread and the MIDI callback
@@ -235,6 +241,12 @@ class OrganController(private val engine: NoteSink = EngineSink) {
         volume = value
         engine.setVolume(value)
         persisted?.volume = value
+    }
+
+    fun changeReverb(value: Float) {
+        reverb = value
+        engine.setReverb(value)
+        persisted?.reverb = value
     }
 
     private fun setToMask(stops: Set<Int>) = stops.fold(0) { mask, i -> mask or (1 shl i) }

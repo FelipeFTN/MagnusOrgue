@@ -92,6 +92,7 @@ Current registration — Manuale: Principale 8', Voce Umana 8' (celeste), Flauto
 
 - **Tremulant:** a ~5.5 Hz, shallow amplitude LFO on the whole organ, applied before the reverb (the wind wobbles, the room doesn't), with an eased depth so toggling mid-chord doesn't step.
 - **Ottava Bassa (sub-octave coupler):** lives in the Kotlin controller, not the engine — each key press also triggers its lower octave. Engine notes are reference-counted there so coupled/doubled presses release cleanly.
+- **Reverb amount:** one 0..1 knob (drawer slider, persisted) scales comb feedback (0.74→0.92, i.e. tail length) and wet blend (0→0.45) together, so one control walks from dry chapel to full cathedral with no silly spots. Default 0.6.
 
 ## Rules of the real-time thread
 

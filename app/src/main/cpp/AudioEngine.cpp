@@ -140,7 +140,7 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream* stream,
         }
     }
 
-    reverb_.process(mono_.data(), numFrames);
+    reverb_.process(mono_.data(), numFrames, reverbAmount_.load(std::memory_order_relaxed));
 
     // Mono → interleaved stereo, with a one-pole smoother on the gain (a raw
     // jump on the volume slider = zipper noise) and tanh as a soft safety

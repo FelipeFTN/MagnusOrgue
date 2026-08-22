@@ -34,6 +34,7 @@ public:
 
     void pushEvent(const Event& e);
     void setVolume(float gain) { targetGain_.store(gain, std::memory_order_relaxed); }
+    void setReverb(float amount) { reverbAmount_.store(amount, std::memory_order_relaxed); }
 
     // oboe::AudioStreamCallback
     oboe::DataCallbackResult onAudioReady(oboe::AudioStream* stream,
@@ -53,6 +54,7 @@ private:
     uint32_t stopMask_ = 1;  // Principale 8' pulled by default
 
     std::atomic<float> targetGain_{0.8f};
+    std::atomic<float> reverbAmount_{0.6f};  // dry chapel .. full cathedral
     float smoothedGain_ = 0.0f;
 
     // Tremulant: a slow amplitude wobble on the whole organ, like the

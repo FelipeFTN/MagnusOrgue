@@ -23,6 +23,7 @@ class OrganControllerTest {
         override fun setStopMask(mask: Int) {}
         override fun setTremulant(on: Boolean) {}
         override fun setVolume(gain: Float) {}
+        override fun setReverb(amount: Float) {}
     }
 
     private val engine = FakeEngine()
