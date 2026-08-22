@@ -27,15 +27,15 @@ The whole point is **low latency** and **zero friction**. Everything else is sec
 
 ## Features
 
-- 🎹 **On-screen keyboard** — multitouch, ~2 octaves in landscape, octave shift buttons
+- 🎹 **Monitor keyboard** — five octaves across the top: mirrors what you play over MIDI, touchable (with glissando) when no keyboard is around
 - 🔌 **USB MIDI via OTG** — automatic plug-and-play detection, hotplug safe, no permission dialogs
 - 🎛️ **Eleven real stops** — 8 manual + 3 pedal ranks sampled from the Giubiasco organ, combinable like real ranks, grouped by division on a drawknob console
 - 🎚️ **Tremulant and Ottava Bassa coupler** — wind wobble and sub-octave coupling, plus a General Cancel piston
 - 🎯 **Four combination pistons** — tap to recall a registration, long-press to store it; everything survives restarts
 - 🎼 **Transposition and sustain pedal** — ±6 semitones, and CC 64 works the way your keyboard expects
 - ⚡ **Low-latency audio** — native C++ engine on top of [Oboe](https://github.com/google/oboe), targeting < 20 ms
-- 🎼 **32-voice polyphony** — big chords with both hands, no crackles
-- 🔇 **Panic button** — because stuck notes happen to everyone
+- 🎹 **32-voice polyphony** — big chords with both hands, no crackles
+- 🔒 **No permissions, no network, no analytics** — it's an instrument, not a data broker
 
 ## How it's built
 
