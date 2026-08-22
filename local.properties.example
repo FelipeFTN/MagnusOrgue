@@ -1,0 +1,4 @@
+storeFile=magnusorgue.jks
+storePassword=secret
+keyAlias=magnusorgue
+keyPassword=secret
