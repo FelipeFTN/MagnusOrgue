@@ -30,6 +30,10 @@ class ConsoleState(context: Context) {
         get() = prefs.getFloat("volume", 0.8f)
         set(value) = prefs.edit { putFloat("volume", value) }
 
+    var transpose: Int
+        get() = prefs.getInt("transpose", 0)
+        set(value) = prefs.edit { putInt("transpose", value) }
+
     /**
      * Combination pistons. -1 = never set; the UI shows those as empty.
      * A stored 0 is a legitimate "all stops off" combination.

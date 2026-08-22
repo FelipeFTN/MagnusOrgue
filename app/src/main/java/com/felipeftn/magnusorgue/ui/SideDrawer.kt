@@ -24,7 +24,9 @@ import androidx.core.net.toUri
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Alignment
 import com.felipeftn.magnusorgue.BuildConfig
+import com.felipeftn.magnusorgue.controller.OrganController
 import com.felipeftn.magnusorgue.ui.theme.Gold
 
 /**
@@ -36,8 +38,9 @@ import com.felipeftn.magnusorgue.ui.theme.Gold
 private const val REPO = "https://github.com/FelipeFTN/MagnusOrgue"
 
 @Composable
-fun SideDrawer(midiDeviceName: String?) {
+fun SideDrawer(controller: OrganController) {
     val context = LocalContext.current
+    val midiDeviceName = controller.midiDeviceName
     fun open(url: String) =
         context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
 
@@ -76,6 +79,26 @@ fun SideDrawer(midiDeviceName: String?) {
                 "Pistons 1–4 under the stops are combination pistons: " +
                 "long-press to store the current registration, tap to recall it."
             )
+
+            SectionTitle("Transpose")
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                TextButton(onClick = { controller.changeTranspose(-1) }) {
+                    Text("−", color = Gold, fontSize = 20.sp)
+                }
+                val t = controller.transpose
+                Text(
+                    if (t > 0) "+$t st" else "$t st",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp,
+                )
+                TextButton(onClick = { controller.changeTranspose(+1) }) {
+                    Text("+", color = Gold, fontSize = 20.sp)
+                }
+            }
+            Body("Shifts the whole organ, up to a fourth either way. General Cancel resets it.")
 
             SectionTitle("Get more organs")
             Body(

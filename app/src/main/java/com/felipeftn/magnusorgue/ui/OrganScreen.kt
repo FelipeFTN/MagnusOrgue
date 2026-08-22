@@ -45,7 +45,7 @@ fun OrganScreen(controller: OrganController, onRetryAudio: () -> Unit) {
         // Swipe-to-open would fight the keyboard's leftmost keys, so the
         // drawer only opens from the ☰ on the console.
         gesturesEnabled = drawerState.isOpen,
-        drawerContent = { SideDrawer(controller.midiDeviceName) },
+        drawerContent = { SideDrawer(controller) },
     ) {
         Column(
             Modifier
