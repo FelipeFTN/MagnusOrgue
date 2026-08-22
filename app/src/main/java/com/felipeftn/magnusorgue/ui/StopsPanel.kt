@@ -272,18 +272,19 @@ private fun StopKnob(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Long names ("Voce Umana", "Flauto Conico") wrap onto a second
-            // line instead of spilling over the knob's edge.
+            // Multi-word names ("Voce Umana") get one word per line — free
+            // wrapping was splitting single words mid-word ("PRINCIPAL/E",
+            // charming). Long single words shrink a notch to fit instead.
+            val longestWord = spec.title.split(' ').maxOf { it.length }
             Text(
-                text = spec.title.uppercase(),
+                text = spec.title.split(' ').joinToString("\n").uppercase(),
                 color = engraving,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
-                fontSize = 8.sp,
-                letterSpacing = 0.5.sp,
+                fontSize = if (longestWord >= 10) 6.5.sp else 8.sp,
+                letterSpacing = if (longestWord >= 10) 0.sp else 0.5.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 9.sp,
-                modifier = Modifier.padding(horizontal = 6.dp),
             )
             if (spec.subtitle.isNotEmpty()) {
                 Text(
