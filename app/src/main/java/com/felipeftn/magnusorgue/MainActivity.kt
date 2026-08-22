@@ -20,6 +20,14 @@ class MainActivity : ComponentActivity() {
     private var midi: MidiInputManager? = null
     private var focusRequest: AudioFocusRequest? = null
 
+    // The engine contract says loadRanks() must finish before start() — the
+    // audio thread reads the ranks lock-free. So the ~100 MB load runs on a
+    // worker thread and start() waits for `ranksLoaded` (either onStart came
+    // first and left `startPending`, or it comes later and starts directly).
+    // All flag access happens on the main thread; the worker only posts.
+    private var ranksLoaded = false
+    private var startPending = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,13 +36,19 @@ class MainActivity : ComponentActivity() {
         // Hardware volume keys should drive media volume, not ringtone.
         volumeControlStream = AudioManager.STREAM_MUSIC
 
-        // ~100 MB of pipes into RAM. Takes around a second on a decent
-        // phone; blocking onCreate keeps the "first note works" guarantee.
-        // TODO: load async behind a splash if it ever feels sluggish.
-        AudioEngine.loadRanks(assets)
-
         // Restore last session's registration, pistons and volume.
         controller.attachPersistence(ConsoleState(this))
+
+        Thread {
+            AudioEngine.loadRanks(assets)
+            runOnUiThread {
+                ranksLoaded = true
+                if (startPending) {
+                    startPending = false
+                    controller.audioReady = AudioEngine.start()
+                }
+            }
+        }.start()
 
         midi = MidiInputManager(this, controller).also { it.start() }
 
@@ -52,10 +66,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         requestAudioFocus()
-        controller.audioReady = AudioEngine.start()
+        if (ranksLoaded) {
+            controller.audioReady = AudioEngine.start()
+        } else {
+            startPending = true  // the loader thread will start the engine
+        }
     }
 
     override fun onStop() {
+        // If we're backgrounded while the ranks are still loading, the
+        // loader must not start the engine behind our back.
+        startPending = false
         // Kill notes BEFORE closing the stream, or held keys come back as
         // zombies when the stream restarts.
         controller.panic()
