@@ -44,7 +44,7 @@
 | 3.4 | Simple envelope (short attack/release) | P0 | Avoids clicks on note on/off |
 | 3.5 | General Cancel piston | P0 | Retires all stops and silences everything, organ style |
 | 3.6 | Master volume control | P0 | Slider in the app + phone hardware buttons |
-| 3.7 | Simple fixed reverb | P0 | Freeverb-style room, always on — half the organ sound |
+| 3.7 | Cathedral reverb | P0 | Freeverb-style, 8 combs + pre-delay, ~4 s tail, always on — half the organ sound |
 | 3.8 | Stop combination | P0 | Drawknobs toggle and stack like real ranks; no stops pulled = silence |
 | 3.9 | Tremulant | P0 | Gentle pre-reverb amplitude LFO, whole organ |
 | 3.10 | Ottava Bassa coupler | P0 | Each key also plays its lower octave (ref-counted, no stuck notes) |

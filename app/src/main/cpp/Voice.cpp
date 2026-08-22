@@ -4,9 +4,10 @@
 
 namespace {
 // De-clicker attack (the sample has the real speech) and a fake pipe-stop
-// release. Values by ear.
+// release. Values by ear — the release leans long so the note hands over
+// to the reverb tail instead of snapping shut in front of it.
 constexpr float kAttackMs = 4.0f;
-constexpr float kReleaseMs = 140.0f;
+constexpr float kReleaseMs = 200.0f;
 
 // int16 -> float, with a bit of headroom baked in so a handful of stops on
 // one note doesn't instantly lean on the master limiter.

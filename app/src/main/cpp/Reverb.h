@@ -2,12 +2,15 @@
 
 #include <vector>
 
-// Small fixed "church" reverb, mono, in-place. A dry organ sounds like a
-// test tone; pipes only make sense inside a room, so this is not optional
-// polish — it's half the instrument.
+// Fixed "cathedral" reverb, mono, in-place. A dry organ sounds like a test
+// tone; pipes only make sense inside a big stone room, so this is not
+// optional polish — it's half the instrument.
 //
-// Structure is a slimmed-down Freeverb: four damped comb filters in
-// parallel feeding two allpasses in series. Nothing fancy, very cheap.
+// Structure is Freeverb-shaped: a pre-delay (the time the first reflection
+// needs to come back off a distant wall), eight damped comb filters in
+// parallel for the tail, and four allpasses in series to smear the echoes
+// into a wash. Tuned for a ~4 s tail — release a chord and the building
+// answers.
 // Background: https://ccrma.stanford.edu/~jos/pasp/Freeverb.html
 class Reverb {
 public:
@@ -27,8 +30,8 @@ private:
 
         float tick(float in, float feedback, float damp) {
             float out = line[pos];
-            // Damp the tail: high frequencies die faster, like in a real
-            // room full of pews and people.
+            // Damp the tail: high frequencies die faster, the way stone,
+            // air and a few hundred pews absorb treble first.
             store = out * (1.0f - damp) + store * damp;
             line[pos] = in + store * feedback;
             if (++pos >= static_cast<int>(line.size())) pos = 0;
@@ -48,7 +51,10 @@ private:
         }
     };
 
-    Comb combs_[4];
-    Allpass allpasses_[2];
+    std::vector<float> predelay_;
+    int prePos_ = 0;
+
+    Comb combs_[8];
+    Allpass allpasses_[4];
     bool ready_ = false;
 };

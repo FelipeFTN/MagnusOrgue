@@ -26,7 +26,7 @@ imported from the Giubiasco GrandOrgue set with `tools/import_ranks.py`:
 - A stop is a rank; pulled stops = one sample layer each per voice.
 - The packs stay out of git (the samples belong to the set's author);
   anyone building the app runs the importer against their own copy.
-- Release samples (R0..R3 in the set) are not imported yet — a ~140 ms
+- Release samples (R0..R3 in the set) are not imported yet — a ~200 ms
   envelope release fakes the pipe closing. TODO, they'd double the assets.
 
 ## Output: Oboe
@@ -66,7 +66,7 @@ One playing note: up to one sample layer per pulled stop, all summed.
 
 - **Per layer:** nearest pipe by keyboard key, fractional read position, linear interpolation, wrap inside the sustain loop.
 - **Pitch shift:** `inc = 2^((note - keyNote) / 12) * (packRate / deviceRate)` — at most ±1 semitone of shift thanks to the minor-third pipe spacing.
-- **Envelope:** a de-clicker only. Attack ~4 ms (the recording carries the real pipe speech); release ~140 ms fakes the pipe closing until release samples land.
+- **Envelope:** a de-clicker only. Attack ~4 ms (the recording carries the real pipe speech); release ~200 ms hands the note over to the reverb tail until real release samples land.
 
 ### VoiceManager (polyphony)
 
