@@ -125,9 +125,10 @@ class MidiInputManager(
                     is MidiEvent.NoteOn -> controller.noteOn(event.note)
                     is MidiEvent.NoteOff -> controller.noteOff(event.note)
                     is MidiEvent.ControlChange -> when (event.controller) {
+                        // CC 64 sustain: >= 64 is down, per the MIDI spec.
+                        64 -> controller.sustain(event.value >= 64)
                         // CC 120 (all sound off) / 123 (all notes off)
                         120, 123 -> controller.panic()
-                        // TODO CC 64 sustain pedal — planned, see docs/02-features.md
                         else -> {}
                     }
                 }
