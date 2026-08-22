@@ -1,45 +1,285 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 256 256"
+   version="1.1"
+   id="svg20"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview20"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="3.1601562"
+     inkscape:cx="76.578492"
+     inkscape:cy="179.89617"
+     inkscape:window-width="2560"
+     inkscape:window-height="1018"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg20" />
   <!-- MagnusOrgue logo: five organ pipes over a dark rounded tile -->
-  <defs>
-    <linearGradient id="pipe" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#e8c469"/>
-      <stop offset="0.55" stop-color="#c99a3a"/>
-      <stop offset="1" stop-color="#8a6420"/>
+  <defs
+     id="defs5">
+    <linearGradient
+       id="pipe"
+       x1="0"
+       y1="0"
+       x2="0"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#e8c469"
+         id="stop1" />
+      <stop
+         offset="0.55"
+         stop-color="#c99a3a"
+         id="stop2" />
+      <stop
+         offset="1"
+         stop-color="#8a6420"
+         id="stop3" />
     </linearGradient>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1d1d22"/>
-      <stop offset="1" stop-color="#101014"/>
+    <linearGradient
+       id="bg"
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="1">
+      <stop
+         offset="0"
+         stop-color="#1d1d22"
+         id="stop4" />
+      <stop
+         offset="1"
+         stop-color="#101014"
+         id="stop5" />
     </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient35"
+       x1="121.75684"
+       y1="44.153578"
+       x2="121.75684"
+       y2="91.986621"
+       gradientTransform="scale(0.45993311,2.1742292)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient36"
+       x1="217.08817"
+       y1="29.849623"
+       x2="217.08817"
+       y2="82.91562"
+       gradientTransform="scale(0.4145781,2.4120908)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient37"
+       x1="321.61863"
+       y1="20.04859"
+       x2="321.61863"
+       y2="77.10996"
+       gradientTransform="scale(0.3855498,2.5936987)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient38"
+       x1="381.11034"
+       y1="29.849623"
+       x2="381.11034"
+       y2="82.91562"
+       gradientTransform="scale(0.4145781,2.4120908)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient39"
+       x1="417.45201"
+       y1="44.153578"
+       x2="417.45201"
+       y2="91.986621"
+       gradientTransform="scale(0.45993311,2.1742292)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#pipe"
+       id="linearGradient40"
+       x1="54.198884"
+       y1="53.728044"
+       x2="54.198884"
+       y2="206.64632"
+       gradientTransform="scale(1.0332316,0.96783721)"
+       gradientUnits="userSpaceOnUse" />
   </defs>
-
-  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
-  <rect x="8" y="8" width="240" height="240" rx="52" fill="none" stroke="#c99a3a" stroke-opacity="0.35" stroke-width="3"/>
-
+  <rect
+     x="8"
+     y="8"
+     width="240"
+     height="240"
+     rx="52"
+     fill="url(#bg)"
+     id="rect5" />
+  <rect
+     x="8"
+     y="8"
+     width="240"
+     height="240"
+     rx="52"
+     fill="none"
+     stroke="#c99a3a"
+     stroke-opacity="0.35"
+     stroke-width="3"
+     id="rect6" />
   <!-- pipes, tallest in the middle -->
-  <g fill="url(#pipe)">
-    <rect x="56"  y="96" width="22" height="104" rx="6"/>
-    <rect x="90"  y="72" width="22" height="128" rx="6"/>
-    <rect x="124" y="52" width="22" height="148" rx="6"/>
-    <rect x="158" y="72" width="22" height="128" rx="6"/>
-    <rect x="192" y="96" width="22" height="104" rx="6"/>
+  <g
+     fill="url(#pipe)"
+     id="g11"
+     style="fill:url(#linearGradient40)"
+     transform="translate(-6.9493201)">
+    <rect
+       x="56"
+       y="96"
+       width="22"
+       height="104"
+       rx="6"
+       id="rect7"
+       style="fill:url(#linearGradient35)" />
+    <rect
+       x="90"
+       y="72"
+       width="22"
+       height="128"
+       rx="6"
+       id="rect8"
+       style="fill:url(#linearGradient36)" />
+    <rect
+       x="124"
+       y="52"
+       width="22"
+       height="148"
+       rx="6"
+       id="rect9"
+       style="fill:url(#linearGradient37)" />
+    <rect
+       x="158"
+       y="72"
+       width="22"
+       height="128"
+       rx="6"
+       id="rect10"
+       style="fill:url(#linearGradient38)" />
+    <rect
+       x="192"
+       y="96"
+       width="22"
+       height="104"
+       rx="6"
+       id="rect11"
+       style="fill:url(#linearGradient39)" />
   </g>
-
   <!-- pipe mouths -->
-  <g fill="#101014" fill-opacity="0.85">
-    <ellipse cx="67"  cy="176" rx="7" ry="4.5"/>
-    <ellipse cx="101" cy="168" rx="7" ry="4.5"/>
-    <ellipse cx="135" cy="160" rx="7" ry="4.5"/>
-    <ellipse cx="169" cy="168" rx="7" ry="4.5"/>
-    <ellipse cx="203" cy="176" rx="7" ry="4.5"/>
+  <g
+     fill="#101014"
+     fill-opacity="0.85"
+     id="g15"
+     transform="translate(-6.9493201)">
+    <ellipse
+       cx="67"
+       cy="176"
+       rx="7"
+       ry="4.5"
+       id="ellipse11" />
+    <ellipse
+       cx="101"
+       cy="168"
+       rx="7"
+       ry="4.5"
+       id="ellipse12" />
+    <ellipse
+       cx="135"
+       cy="160"
+       rx="7"
+       ry="4.5"
+       id="ellipse13" />
+    <ellipse
+       cx="169"
+       cy="168"
+       rx="7"
+       ry="4.5"
+       id="ellipse14" />
+    <ellipse
+       cx="203"
+       cy="176"
+       rx="7"
+       ry="4.5"
+       id="ellipse15" />
   </g>
-
   <!-- keybed hint at the base -->
-  <rect x="46" y="206" width="164" height="14" rx="4" fill="#e9e2d0"/>
-  <g fill="#101014">
-    <rect x="66"  y="206" width="7" height="9" rx="1.5"/>
-    <rect x="88"  y="206" width="7" height="9" rx="1.5"/>
-    <rect x="120" y="206" width="7" height="9" rx="1.5"/>
-    <rect x="142" y="206" width="7" height="9" rx="1.5"/>
-    <rect x="164" y="206" width="7" height="9" rx="1.5"/>
+  <rect
+     x="48"
+     y="206"
+     width="159.25339"
+     height="14"
+     rx="3.8842292"
+     fill="#e9e2d0"
+     id="rect15"
+     style="stroke-width:0.985422" />
+  <g
+     fill="#101014"
+     id="g20"
+     transform="translate(3.7527809,-1.1075402)">
+    <rect
+       x="66"
+       y="206"
+       width="7"
+       height="9"
+       rx="1.5"
+       id="rect16" />
+    <rect
+       x="88"
+       y="206"
+       width="7"
+       height="9"
+       rx="1.5"
+       id="rect17" />
+    <rect
+       x="120"
+       y="206"
+       width="7"
+       height="9"
+       rx="1.5"
+       id="rect18" />
+    <rect
+       x="142"
+       y="206"
+       width="7"
+       height="9"
+       rx="1.5"
+       id="rect19" />
+    <rect
+       x="164"
+       y="206"
+       width="7"
+       height="9"
+       rx="1.5"
+       id="rect20" />
   </g>
 </svg>
