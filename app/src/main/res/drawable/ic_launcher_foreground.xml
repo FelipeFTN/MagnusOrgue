@@ -1,32 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Same five pipes as assets/logo.svg, redrawn for the adaptive icon safe
-     zone (center ~66 of 108dp). Rounded corners dropped — invisible at
-     launcher sizes anyway. -->
+<!-- Same five pipes as assets/logo.svg (post-Inkscape recentering — the
+     translate()s from there are already baked into these coordinates),
+     redrawn for the adaptive icon safe zone (center ~66 of 108dp).
+     Rounded corners dropped — invisible at launcher sizes anyway. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
+    <!-- 0.29 fits the whole drawing inside the worst-case circular mask
+         (66dp safe zone). The old 0.38 was clipping the outer pipes and
+         the keybed corners on round launchers — nobody had looked. -->
     <group
-        android:scaleX="0.38"
-        android:scaleY="0.38"
-        android:translateX="4.6"
-        android:translateY="2.3">
+        android:scaleX="0.29"
+        android:scaleY="0.29"
+        android:translateX="17.0"
+        android:translateY="14.6">
 
         <!-- pipes -->
-        <path android:fillColor="#C99A3A" android:pathData="M56,96h22v104h-22z" />
-        <path android:fillColor="#C99A3A" android:pathData="M90,72h22v128h-22z" />
-        <path android:fillColor="#C99A3A" android:pathData="M124,52h22v148h-22z" />
-        <path android:fillColor="#C99A3A" android:pathData="M158,72h22v128h-22z" />
-        <path android:fillColor="#C99A3A" android:pathData="M192,96h22v104h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M49.1,96h22v104h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M83.1,72h22v128h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M117.1,52h22v148h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M151.1,72h22v128h-22z" />
+        <path android:fillColor="#C99A3A" android:pathData="M185.1,96h22v104h-22z" />
+
+        <!-- pipe mouths (ellipses as pathData arcs) -->
+        <path android:fillColor="#101014" android:fillAlpha="0.85"
+            android:pathData="M53.1,176a7,4.5 0 1,0 14,0a7,4.5 0 1,0 -14,0z" />
+        <path android:fillColor="#101014" android:fillAlpha="0.85"
+            android:pathData="M87.1,168a7,4.5 0 1,0 14,0a7,4.5 0 1,0 -14,0z" />
+        <path android:fillColor="#101014" android:fillAlpha="0.85"
+            android:pathData="M121.1,160a7,4.5 0 1,0 14,0a7,4.5 0 1,0 -14,0z" />
+        <path android:fillColor="#101014" android:fillAlpha="0.85"
+            android:pathData="M155.1,168a7,4.5 0 1,0 14,0a7,4.5 0 1,0 -14,0z" />
+        <path android:fillColor="#101014" android:fillAlpha="0.85"
+            android:pathData="M189.1,176a7,4.5 0 1,0 14,0a7,4.5 0 1,0 -14,0z" />
 
         <!-- keybed strip at the base -->
-        <path android:fillColor="#E9E2D0" android:pathData="M46,206h164v14h-164z" />
-        <path android:fillColor="#101014" android:pathData="M66,206h7v9h-7z" />
-        <path android:fillColor="#101014" android:pathData="M88,206h7v9h-7z" />
-        <path android:fillColor="#101014" android:pathData="M120,206h7v9h-7z" />
-        <path android:fillColor="#101014" android:pathData="M142,206h7v9h-7z" />
-        <path android:fillColor="#101014" android:pathData="M164,206h7v9h-7z" />
+        <path android:fillColor="#E9E2D0" android:pathData="M48,206h159.3v14h-159.3z" />
+        <path android:fillColor="#101014" android:pathData="M69.8,204.9h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M91.8,204.9h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M123.8,204.9h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M145.8,204.9h7v9h-7z" />
+        <path android:fillColor="#101014" android:pathData="M167.8,204.9h7v9h-7z" />
     </group>
 </vector>
