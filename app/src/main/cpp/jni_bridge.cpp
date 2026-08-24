@@ -6,8 +6,6 @@
 #include <android/asset_manager_jni.h>
 #include <jni.h>
 
-#include <vector>
-
 #include "AudioEngine.h"
 
 namespace {

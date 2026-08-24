@@ -1,9 +1,10 @@
 #include "VoiceManager.h"
 
 void VoiceManager::noteOn(int note, uint32_t stopMask, const Rank* ranks, float outputRate) {
-    // Same note already sounding? Just restart its attack. Happens with
-    // repeated keystrokes whose release tail hasn't finished, or when the
-    // touch keyboard and the MIDI keyboard hit the same note.
+    // Same note already sounding and not releasing? Restart its attack.
+    // The Kotlin controller refcounts notes so this "shouldn't happen" —
+    // but if the event queue ever drops a NoteOff under pressure, this is
+    // what keeps a duplicate voice from piling onto the same pipe.
     for (Voice& v : voices_) {
         if (v.active() && v.note() == note && !v.releasing()) {
             v.retrigger();

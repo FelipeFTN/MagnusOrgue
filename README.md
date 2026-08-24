@@ -51,7 +51,7 @@ The whole point is **low latency** and **zero friction**. Everything else is sec
 | UI | Kotlin + Jetpack Compose (custom `Canvas` keyboard) |
 | MIDI | `android.media.midi` (`MidiManager`) |
 | Audio | C++ / NDK with Oboe, sampled pipes (Giubiasco) |
-| Bridge | A deliberately tiny JNI surface (7 functions) |
+| Bridge | A deliberately tiny JNI surface (ten small functions) |
 | Build | Gradle (Kotlin DSL) + CMake |
 
 Minimum SDK is **26** (Android 8.0). No sensitive permissions, no network access, no analytics.

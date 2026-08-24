@@ -68,6 +68,6 @@
 - **Latency:** < 40 ms touch→sound (target < 20 ms).
 - **No crackles** (clicks/pops) under dense chords.
 - **No background audio** in the MVP: pause/release the stream when the app loses focus.
-- **APK size:** < 60 MB (samples/SoundFont are what weighs; pick a lean SF2).
+- **APK size:** ~120 MB — the eleven rank packs are ~104 MB of it, and they're the whole point.
 - **Compatibility:** Android 8.0 (API 26) or higher — comfortably covers the MIDI API (API 23+) and AAudio (API 26+).
 - **Permissions:** no sensitive permissions; USB MIDI via `MidiManager` requires no user permission for MIDI-class devices.
